@@ -1,9 +1,11 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
+import { useColorScheme } from "react-native";
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const colorScheme = useColorScheme();
   
   return (
     <Tabs
@@ -11,7 +13,19 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.text,
         tabBarStyle: {
-          backgroundColor: colors.card,
+            backgroundColor: colorScheme === 'dark' ? 'rgba(71, 71, 76, 0.62)' : 'rgba(191, 189, 189, 0.58)',
+            width: '80%',
+            height: 60,
+            borderRadius: 30,
+            bottom: 30,
+            position: 'absolute',
+            left: '50%',
+            marginLeft: '10%',
+            shadowColor: '#000000aa',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
         },
         headerShown: false,
       }}
@@ -30,7 +44,7 @@ export default function TabsLayout() {
         options={{
           title: "Discover",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="compass" size={size} color={color} />
+            <Ionicons name="compass-outline" size={size} color={color} />
           ),
         }}
       />
