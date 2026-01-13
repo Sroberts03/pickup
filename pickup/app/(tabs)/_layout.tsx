@@ -13,7 +13,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.text,
         tabBarStyle: {
-            backgroundColor: colorScheme === 'dark' ? 'rgba(71, 71, 76, 0.62)' : 'rgba(191, 189, 189, 0.58)',
+            backgroundColor: colorScheme === 'dark' ? 'rgba(80, 80, 80, 0.5)' : 'rgba(237, 237, 237, 0.5)',
             width: '80%',
             height: 60,
             borderRadius: 30,
