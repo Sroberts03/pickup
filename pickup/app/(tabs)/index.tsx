@@ -1,20 +1,61 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
-import React from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import { useServer } from "@/contexts/ServerContext";
+import { Game } from "@/objects/Game";
+
+interface GameWithDetails extends Game {
+  sportName: string;
+  currentPlayers: number;
+}
+
+function getSportImage(sportName: string): ImageSourcePropType {
+  const key = sportName.toLowerCase();
+  if (key.includes("basketball")) return require("../../assets/images/basketball.png");
+  if (key.includes("soccer")) return require("../../assets/images/soccer.png");
+  if (key.includes("football")) return require("../../assets/images/football.png");
+  return require("../../assets/images/football.png"); // fallback if unknown
+}
 
 export default function Index() {
   const { colors } = useTheme();
-  const { user } = useAuth();
-  
+  const server = useServer();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
+  const [games, setGames] = useState<GameWithDetails[]>([]);
+
+  useEffect(() => {
+    const fetchGamesWithDetails = async () => {
+      const gamesList = await server.getGames();
+      
+      const gamesWithDetails = await Promise.all(
+        gamesList.map(async (game) => {
+          const sport = await server.getSport(game.sportId);
+          const currentPlayers = await server.getGamePlayerCount(game.id);
+          
+          return {
+            ...game,
+            sportName: sport.name,
+            currentPlayers: currentPlayers,
+          };
+        })
+      );
+      
+      setGames(gamesWithDetails);
+    };
+    
+    fetchGamesWithDetails();
+  }, [server]);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        <View>
-          <Text>Welcome to Pickup, {user?.firstName}!</Text>
-        </View>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: insets.bottom + tabBarHeight }}
+      >
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.filterButton}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
@@ -23,6 +64,33 @@ export default function Index() {
             <Feather name="search" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
         </View>
+
+        <View style={styles.gamesContainer}>
+          {games.map((game) => (
+            <View key={game.id} style={[styles.gameContainer, { borderColor: colors.border }]}>
+              <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
+                <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>
+                <Text style={[styles.dateText, { color: colors.text }]}>{game.startTime.toString()}</Text>
+              </View>
+              
+              <View style={[styles.gameInfo, { backgroundColor: colors.background }]}>
+                <Image source={getSportImage(game.sportName)} style={styles.sportImage} />
+                <Text style={[styles.gameTitle, { color: colors.text }]}>{game.name}</Text>
+                <Text style={[styles.gameDescription, { color: colors.text }]}>{game.description}</Text>
+              </View>
+
+              <View style={[styles.gameFooter, { backgroundColor: colors.card }]}>
+                <TouchableOpacity style={styles.joinButton}>
+                  <Text style={styles.joinText}>JOIN</Text>
+                </TouchableOpacity>
+                <Text style={[styles.playerCount, { color: colors.text }]}>
+                  {game.currentPlayers}/{game.maxPlayers} Players
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -34,27 +102,83 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
-    textAlign: "center",
-    marginBottom: 30,
+    paddingHorizontal: 15,
   },
   filterButton: {
-    marginLeft: 15,
+    marginLeft: 0,
   },
   searchButton: {
-    marginRight: 15,
+    marginRight: 0,
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
+    marginHorizontal: 0,
+  },
+  gamesContainer: {
+    gap: 15,
+  },
+  gameContainer: {
+    borderWidth: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 0,
+  },
+  gameHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  sportText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  dateText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  gameInfo: {
+    paddingHorizontal: 15,
+    paddingVertical: 20,
+    minHeight: 80,
+    justifyContent: 'center',
+  },
+  gameTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  gameDescription: {
+    fontSize: 14,
+  },
+  gameFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    gap: 15,
+  },
+  joinButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 5,
+  },
+  joinText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  playerCount: {
+    fontSize: 12,
+  },
+  sportImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 10,
+    resizeMode: "cover",
   },
 });

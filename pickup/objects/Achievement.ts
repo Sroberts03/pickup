@@ -1,4 +1,4 @@
-export default class Achievements {
+export default class Achievement {
     id: number;
     name: string;
     description: string;

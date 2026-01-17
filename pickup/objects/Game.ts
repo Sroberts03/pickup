@@ -12,7 +12,7 @@ export enum SkillLevel {
     Expert = 'Expert'
 }
 
-export class Games {
+export class Game {
     id: number
     name: string
     description: string

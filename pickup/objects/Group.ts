@@ -4,8 +4,8 @@ export default class Group {
     description: string;
     isPrivate: boolean;
     createdAt: Date;
-    location: string;
-    isGameCoordination: boolean;
+    location: number;
+    isGameCoordination: number|null;
 
     constructor(
         id: number,
@@ -13,8 +13,8 @@ export default class Group {
         description: string,
         isPrivate: boolean,
         createdAt: Date,
-        location: string,
-        isGameCoordination: boolean
+        location: number,
+        isGameCoordination: number|null = null
     ) {
         this.id = id;
         this.name = name;

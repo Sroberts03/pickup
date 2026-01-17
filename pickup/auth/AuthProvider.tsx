@@ -19,6 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(result.user);
           setToken(result.token);
         }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         console.log('User not logged in');
       } finally {
