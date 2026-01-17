@@ -1,18 +1,16 @@
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
-import { useAuth } from "@/contexts/AuthContext";
 import { Feather } from '@expo/vector-icons';
 import React from "react";
 
 export default function Index() {
   const { colors } = useTheme();
-  const { user } = useAuth();
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
-        <View>
+        <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.filterButton}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
@@ -44,10 +42,14 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   filterButton: {
-    padding: 8,
+    marginLeft: 15,
   },
   searchButton: {
-    padding: 8,
-    
+    marginRight: 15,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
 });
