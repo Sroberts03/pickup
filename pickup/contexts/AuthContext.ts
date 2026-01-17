@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 import User from '../objects/User';
 
 type AuthContextType = {
   user: User | null;
   token: string | null;
+  loading: boolean;
   signup: (
     email: string,
     password: string,

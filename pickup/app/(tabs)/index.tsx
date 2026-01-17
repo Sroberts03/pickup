@@ -1,15 +1,20 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native";
+import { StyleSheet, ScrollView, View, TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
 import React from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const { colors } = useTheme();
+  const { user } = useAuth();
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
+        <View>
+          <Text>Welcome to Pickup, {user?.firstName}!</Text>
+        </View>
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.filterButton}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
