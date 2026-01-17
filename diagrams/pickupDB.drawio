@@ -1,11 +1,13 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0" pages="5">
   <diagram id="ljQUccd-tZ9VFlNGGMv-" name="Needed app abilities">
-    <mxGraphModel dx="452" dy="362" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="300" pageHeight="600" math="0" shadow="0">
+    <mxGraphModel dx="885" dy="709" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="300" pageHeight="600" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="AAcX8yw3La-SvVWlul1k-1" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" value="Abilities" vertex="1">
-          <mxGeometry height="572" width="300" as="geometry" />
+          <mxGeometry height="468" width="300" as="geometry">
+            <mxRectangle height="30" width="80" as="alternateBounds" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="AAcX8yw3La-SvVWlul1k-2" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="Login" vertex="1">
           <mxGeometry height="26" width="300" y="26" as="geometry" />
@@ -58,18 +60,6 @@
         <mxCell id="AAcX8yw3La-SvVWlul1k-18" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="Store Profile Photos" vertex="1">
           <mxGeometry height="26" width="300" y="442" as="geometry" />
         </mxCell>
-        <mxCell id="AAcX8yw3La-SvVWlul1k-19" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="List Item" vertex="1">
-          <mxGeometry height="26" width="300" y="468" as="geometry" />
-        </mxCell>
-        <mxCell id="AAcX8yw3La-SvVWlul1k-20" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="List Item" vertex="1">
-          <mxGeometry height="26" width="300" y="494" as="geometry" />
-        </mxCell>
-        <mxCell id="AAcX8yw3La-SvVWlul1k-21" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="List Item" vertex="1">
-          <mxGeometry height="26" width="300" y="520" as="geometry" />
-        </mxCell>
-        <mxCell id="AAcX8yw3La-SvVWlul1k-22" parent="AAcX8yw3La-SvVWlul1k-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="List Item" vertex="1">
-          <mxGeometry height="26" width="300" y="546" as="geometry" />
-        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
@@ -112,7 +102,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Database" id="W-6zP_flR_fn9AeLrNCf">
-    <mxGraphModel dx="754" dy="579" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="800" math="0" shadow="0">
+    <mxGraphModel dx="1018" dy="815" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="800" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
