@@ -1,3 +1,6 @@
+import User from "@/objects/User";
 export default interface ServerFacade {
-    Login({username, password}: {username: string, password: string}): Promise<{ token: string, userId: string }>;
+    login(email: string, password: string): Promise<{ token: string, user: User }>;
+    signup(email: string, password: string, firstName: string, lastName: string, profilePicUrl: string): Promise<{ token: string, user: User }>;
+    logout(): Promise<void>;
 }

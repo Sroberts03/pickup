@@ -1,5 +1,5 @@
 export default class User {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -7,7 +7,7 @@ export default class User {
     profilePicUrl: string | null;
 
     constructor(
-        id: string,
+        id: number,
         firstName: string,
         lastName: string,
         email: string,
