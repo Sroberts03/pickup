@@ -17,4 +17,9 @@ export default interface ServerFacade {
 
     searchGames(query: string): Promise<GameWithDetails[]>;
     searchUsers(query: string): Promise<User[]>;
+
+    getUser(userId: number): Promise<User | undefined>;
+    getGamePlayers(gameId: number): Promise<User[]>;
+    joinGame(gameId: number): Promise<void>;
+    leaveGame(gameId: number): Promise<void>;
 }

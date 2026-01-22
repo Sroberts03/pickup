@@ -8,6 +8,7 @@ import { useServer } from "@/contexts/ServerContext";
 import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
 import SearchModal from "@/components/SearchModal";
+import GameDetailsModal from "@/components/GameDetailsModal";
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -26,25 +27,26 @@ export default function Index() {
   const [filters, setFilters] = useState<GameFilter | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleApplyFilters = (newFilters: GameFilter) => {
     setFilters(newFilters);
   };
 
-  useEffect(() => {
-    const fetchGames = async () => {
-      setIsLoading(true);
-      try {
-        const gamesList = await server.getGamesWithDetails(filters || undefined);
-        setGames(gamesList);
-      } catch (error) {
-        console.error("Failed to fetch games:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchGames = async () => {
+    setIsLoading(true);
+    try {
+      const gamesList = await server.getGamesWithDetails(filters || undefined);
+      setGames(gamesList);
+    } catch (error) {
+      console.error("Failed to fetch games:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchGames();
   }, [server, filters]);
 
@@ -63,17 +65,7 @@ export default function Index() {
           </TouchableOpacity>
         </View>
 
-        <FilterModal
-          visible={isFilterVisible}
-          onClose={() => setIsFilterVisible(false)}
-          onApply={handleApplyFilters}
-          currentFilters={filters}
-        />
 
-        <SearchModal
-          visible={isSearchVisible}
-          onClose={() => setIsSearchVisible(false)}
-        />
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
@@ -82,7 +74,12 @@ export default function Index() {
         ) : (
           <View style={styles.gamesContainer}>
             {games.map((game) => (
-              <View key={game.id} style={[styles.gameContainer, { borderColor: colors.border }]}>
+              <TouchableOpacity
+                key={game.id}
+                style={[styles.gameContainer, { borderColor: colors.border }]}
+                onPress={() => setSelectedGame(game)}
+                activeOpacity={0.9}
+              >
                 <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
                   <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>
                   <Text style={[styles.dateText, { color: colors.text }]}>{game.startTime.toString()}</Text>
@@ -95,18 +92,40 @@ export default function Index() {
                 </View>
 
                 <View style={[styles.gameFooter, { backgroundColor: colors.card }]}>
-                  <TouchableOpacity style={styles.joinButton}>
-                    <Text style={styles.joinText}>JOIN</Text>
-                  </TouchableOpacity>
                   <Text style={[styles.playerCount, { color: colors.text }]}>
                     {game.currentPlayers}/{game.maxPlayers} Players
                   </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
       </ScrollView>
+
+      <FilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onApply={handleApplyFilters}
+        currentFilters={filters}
+      />
+
+      <SearchModal
+        visible={isSearchVisible}
+        onClose={() => setIsSearchVisible(false)}
+        onGameSelect={(game) => {
+          setIsSearchVisible(false);
+          setSelectedGame(game);
+        }}
+      />
+
+      <GameDetailsModal
+        visible={!!selectedGame}
+        game={selectedGame}
+        onClose={() => {
+          setSelectedGame(null);
+          fetchGames();
+        }}
+      />
     </SafeAreaView>
   );
 }

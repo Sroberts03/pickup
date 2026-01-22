@@ -9,9 +9,10 @@ import User from "@/objects/User";
 interface SearchModalProps {
     visible: boolean;
     onClose: () => void;
+    onGameSelect: (game: GameWithDetails) => void;
 }
 
-const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
+const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onGameSelect }) => {
     const { colors } = useTheme();
     const server = useServer();
     const [query, setQuery] = useState("");
@@ -119,13 +120,17 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                     <ScrollView style={styles.resultsContainer}>
                         {activeTab === 'Games' ? (
                             gameResults.map(game => (
-                                <View key={game.id} style={[styles.resultItem, { borderBottomColor: colors.border }]}>
+                                <TouchableOpacity
+                                    key={game.id}
+                                    style={[styles.resultItem, { borderBottomColor: colors.border }]}
+                                    onPress={() => onGameSelect(game)}
+                                >
                                     <View>
                                         <Text style={[styles.resultTitle, { color: colors.text }]}>{game.name}</Text>
                                         <Text style={[styles.resultSubtitle, { color: colors.text + '99' }]}>{game.sportName} • {game.startTime.toString().substring(0, 10)}</Text>
                                     </View>
                                     <Feather name="chevron-right" size={20} color={colors.text + '80'} />
-                                </View>
+                                </TouchableOpacity>
                             ))
                         ) : (
                             userResults.map(user => (

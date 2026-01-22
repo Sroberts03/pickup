@@ -289,10 +289,15 @@ export default class TestServerFacade implements ServerFacade {
                         const sport = await this.getSport(game.sportId);
                         const currentPlayers = await this.getGamePlayerCount(game.id);
 
+                        // Mock check if user 1 is joined
+                        const userId = 1;
+                        const isJoined = this.userGames.get(userId)?.has(game.id) ?? false;
+
                         return {
                             ...game,
                             sportName: sport.name,
                             currentPlayers: currentPlayers,
+                            isJoined: isJoined
                         };
                     })
                 );
@@ -317,6 +322,81 @@ export default class TestServerFacade implements ServerFacade {
                 });
 
                 resolve(filteredUsers);
+            }, 500);
+        });
+    }
+
+    async getUser(userId: number): Promise<User | undefined> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.users.get(userId));
+            }, 500);
+        });
+    }
+
+    async getGamePlayers(gameId: number): Promise<User[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const playerIds: number[] = [];
+                this.userGames.forEach((games, userId) => {
+                    if (games.has(gameId)) {
+                        playerIds.push(userId);
+                    }
+                });
+
+                const players = playerIds
+                    .map(id => this.users.get(id))
+                    .filter((user): user is User => user !== undefined);
+
+                resolve(players);
+            }, 500);
+        });
+    }
+
+    async joinGame(gameId: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            setTimeout(async () => {
+                const userId = this.currentUserId;
+
+                if (!userId) {
+                    reject(new Error("User not found"));
+                    return;
+                }
+
+                if (!this.games.has(gameId)) {
+                    reject(new Error("Game not found"));
+                    return;
+                }
+
+                if (!this.userGames.has(userId)) {
+                    this.userGames.set(userId, new Set());
+                }
+
+                this.userGames.get(userId)?.add(gameId);
+                resolve();
+            }, 500);
+        });
+    }
+
+    async leaveGame(gameId: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const userId = this.currentUserId;
+
+                if (!userId) {
+                    reject(new Error("User not found"));
+                    return;
+                }
+
+                if (!this.games.has(gameId)) {
+                    reject(new Error("Game not found"));
+                    return;
+                }
+
+                if (this.userGames.has(userId)) {
+                    this.userGames.get(userId)?.delete(gameId);
+                }
+                resolve();
             }, 500);
         });
     }
