@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
 import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
+import SearchModal from "@/components/SearchModal";
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -24,6 +25,7 @@ export default function Index() {
   const [games, setGames] = useState<GameWithDetails[]>([]);
   const [filters, setFilters] = useState<GameFilter | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleApplyFilters = (newFilters: GameFilter) => {
@@ -56,7 +58,7 @@ export default function Index() {
           <TouchableOpacity style={styles.filterButton} onPress={() => setIsFilterVisible(true)}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => setIsSearchVisible(true)}>
             <Feather name="search" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
         </View>
@@ -66,6 +68,11 @@ export default function Index() {
           onClose={() => setIsFilterVisible(false)}
           onApply={handleApplyFilters}
           currentFilters={filters}
+        />
+
+        <SearchModal
+          visible={isSearchVisible}
+          onClose={() => setIsSearchVisible(false)}
         />
 
         {isLoading ? (

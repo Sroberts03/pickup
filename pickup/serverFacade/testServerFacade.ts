@@ -269,4 +269,55 @@ export default class TestServerFacade implements ServerFacade {
             }, 500);
         });
     }
+
+    async searchGames(query: string): Promise<GameWithDetails[]> {
+        return new Promise((resolve) => {
+            setTimeout(async () => {
+                const lowerQuery = query.toLowerCase();
+                const allGames = Array.from(this.games.values());
+
+                const filteredGames = allGames.filter(game => {
+                    const creator = this.users.get(game.createrId);
+                    const creatorName = creator ? `${creator.firstName} ${creator.lastName}`.toLowerCase() : "";
+
+                    return game.name.toLowerCase().includes(lowerQuery) ||
+                        creatorName.includes(lowerQuery);
+                });
+
+                const gamesWithDetails = await Promise.all(
+                    filteredGames.map(async (game) => {
+                        const sport = await this.getSport(game.sportId);
+                        const currentPlayers = await this.getGamePlayerCount(game.id);
+
+                        return {
+                            ...game,
+                            sportName: sport.name,
+                            currentPlayers: currentPlayers,
+                        };
+                    })
+                );
+
+                resolve(gamesWithDetails);
+            }, 500);
+        });
+    }
+
+    async searchUsers(query: string): Promise<User[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const lowerQuery = query.toLowerCase();
+                const allUsers = Array.from(this.users.values());
+
+                const filteredUsers = allUsers.filter(user => {
+                    if (!user.isPublic) return false;
+
+                    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+                    return fullName.includes(lowerQuery) ||
+                        user.email.toLowerCase().includes(lowerQuery);
+                });
+
+                resolve(filteredUsers);
+            }, 500);
+        });
+    }
 }

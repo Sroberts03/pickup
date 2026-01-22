@@ -14,4 +14,7 @@ export default interface ServerFacade {
     getGamePlayerCount(gameId: number): Promise<number>;
     getPossibleSports(): Promise<string[]>;
     getPossibleSkillLevels(): Promise<string[]>;
+
+    searchGames(query: string): Promise<GameWithDetails[]>;
+    searchUsers(query: string): Promise<User[]>;
 }
