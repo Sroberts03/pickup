@@ -5,13 +5,8 @@ import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
-import { Game, GameFilter } from "@/objects/Game";
+import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
-
-interface GameWithDetails extends Game {
-  sportName: string;
-  currentPlayers: number;
-}
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -36,46 +31,11 @@ export default function Index() {
   };
 
   useEffect(() => {
-    const fetchGamesWithDetails = async () => {
+    const fetchGames = async () => {
       setIsLoading(true);
       try {
-        if (!filters) {
-          const gamesList = await server.getGames();
-
-          const gamesWithDetails = await Promise.all(
-            gamesList.map(async (game) => {
-              const sport = await server.getSport(game.sportId);
-              const currentPlayers = await server.getGamePlayerCount(game.id);
-
-              return {
-                ...game,
-                sportName: sport.name,
-                currentPlayers: currentPlayers,
-              };
-            })
-          );
-
-          setGames(gamesWithDetails);
-        }
-
-        if (filters) {
-          const gamesList = await server.getGames(filters);
-
-          const gamesWithDetails = await Promise.all(
-            gamesList.map(async (game) => {
-              const sport = await server.getSport(game.sportId);
-              const currentPlayers = await server.getGamePlayerCount(game.id);
-
-              return {
-                ...game,
-                sportName: sport.name,
-                currentPlayers: currentPlayers,
-              };
-            })
-          );
-
-          setGames(gamesWithDetails);
-        }
+        const gamesList = await server.getGamesWithDetails(filters || undefined);
+        setGames(gamesList);
       } catch (error) {
         console.error("Failed to fetch games:", error);
       } finally {
@@ -83,7 +43,7 @@ export default function Index() {
       }
     };
 
-    fetchGamesWithDetails();
+    fetchGames();
   }, [server, filters]);
 
   return (

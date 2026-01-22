@@ -58,6 +58,7 @@ export class Game {
     }
 }
 
+
 export interface GameFilter {
     sport?: string[];
     location?: string;
@@ -65,4 +66,9 @@ export interface GameFilter {
     time?: string;
     skillLevel?: string[];
     maxPlayers?: number;
+}
+
+export interface GameWithDetails extends Game {
+    sportName: string;
+    currentPlayers: number;
 }

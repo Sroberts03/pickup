@@ -2,7 +2,7 @@ import User from "@/objects/User";
 import ServerFacade from "./serverFacade";
 import Group from "@/objects/Group";
 import GroupMessage from "@/objects/GroupMessage";
-import { Game, GameStatus, SkillLevel, GameFilter } from "@/objects/Game";
+import { Game, GameStatus, SkillLevel, GameFilter, GameWithDetails } from "@/objects/Game";
 import Achievement from "@/objects/Achievement";
 import Location from "@/objects/Location";
 import Sport from "@/objects/Sport";
@@ -207,6 +207,25 @@ export default class TestServerFacade implements ServerFacade {
                 resolve(games);
             }, 500);
         });
+    }
+
+    async getGamesWithDetails(filters?: GameFilter): Promise<GameWithDetails[]> {
+        const games = await this.getGames(filters);
+
+        const gamesWithDetails = await Promise.all(
+            games.map(async (game) => {
+                const sport = await this.getSport(game.sportId);
+                const currentPlayers = await this.getGamePlayerCount(game.id);
+
+                return {
+                    ...game,
+                    sportName: sport.name,
+                    currentPlayers: currentPlayers,
+                };
+            })
+        );
+
+        return gamesWithDetails;
     }
 
     async getSport(sportId: number): Promise<Sport> {

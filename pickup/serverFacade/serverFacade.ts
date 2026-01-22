@@ -1,4 +1,4 @@
-import { Game, GameFilter } from "@/objects/Game";
+import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
 
@@ -9,6 +9,7 @@ export default interface ServerFacade {
     logout(): Promise<void>;
 
     getGames(filters?: GameFilter): Promise<Game[]>;
+    getGamesWithDetails(filters?: GameFilter): Promise<GameWithDetails[]>;
     getSport(sportId: number): Promise<Sport>;
     getGamePlayerCount(gameId: number): Promise<number>;
     getPossibleSports(): Promise<string[]>;
