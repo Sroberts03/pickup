@@ -1,11 +1,12 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType } from "react-native";
+import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
 import React, { useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
-import { Game } from "@/objects/Game";
+import { Game, GameFilter } from "@/objects/Game";
+import FilterModal from "@/components/FilterModal";
 
 interface GameWithDetails extends Game {
   sportName: string;
@@ -26,29 +27,64 @@ export default function Index() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const [games, setGames] = useState<GameWithDetails[]>([]);
+  const [filters, setFilters] = useState<GameFilter | null>(null);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleApplyFilters = (newFilters: GameFilter) => {
+    setFilters(newFilters);
+  };
 
   useEffect(() => {
     const fetchGamesWithDetails = async () => {
-      const gamesList = await server.getGames();
-      
-      const gamesWithDetails = await Promise.all(
-        gamesList.map(async (game) => {
-          const sport = await server.getSport(game.sportId);
-          const currentPlayers = await server.getGamePlayerCount(game.id);
-          
-          return {
-            ...game,
-            sportName: sport.name,
-            currentPlayers: currentPlayers,
-          };
-        })
-      );
-      
-      setGames(gamesWithDetails);
+      setIsLoading(true);
+      try {
+        if (!filters) {
+          const gamesList = await server.getGames();
+
+          const gamesWithDetails = await Promise.all(
+            gamesList.map(async (game) => {
+              const sport = await server.getSport(game.sportId);
+              const currentPlayers = await server.getGamePlayerCount(game.id);
+
+              return {
+                ...game,
+                sportName: sport.name,
+                currentPlayers: currentPlayers,
+              };
+            })
+          );
+
+          setGames(gamesWithDetails);
+        }
+
+        if (filters) {
+          const gamesList = await server.getGames(filters);
+
+          const gamesWithDetails = await Promise.all(
+            gamesList.map(async (game) => {
+              const sport = await server.getSport(game.sportId);
+              const currentPlayers = await server.getGamePlayerCount(game.id);
+
+              return {
+                ...game,
+                sportName: sport.name,
+                currentPlayers: currentPlayers,
+              };
+            })
+          );
+
+          setGames(gamesWithDetails);
+        }
+      } catch (error) {
+        console.error("Failed to fetch games:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
+
     fetchGamesWithDetails();
-  }, [server]);
+  }, [server, filters]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -57,7 +93,7 @@ export default function Index() {
         contentContainerStyle={{ paddingBottom: insets.bottom + tabBarHeight }}
       >
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.filterButton}>
+          <TouchableOpacity style={styles.filterButton} onPress={() => setIsFilterVisible(true)}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.searchButton}>
@@ -65,32 +101,44 @@ export default function Index() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.gamesContainer}>
-          {games.map((game) => (
-            <View key={game.id} style={[styles.gameContainer, { borderColor: colors.border }]}>
-              <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
-                <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>
-                <Text style={[styles.dateText, { color: colors.text }]}>{game.startTime.toString()}</Text>
-              </View>
-              
-              <View style={[styles.gameInfo, { backgroundColor: colors.background }]}>
-                <Image source={getSportImage(game.sportName)} style={styles.sportImage} />
-                <Text style={[styles.gameTitle, { color: colors.text }]}>{game.name}</Text>
-                <Text style={[styles.gameDescription, { color: colors.text }]}>{game.description}</Text>
-              </View>
+        <FilterModal
+          visible={isFilterVisible}
+          onClose={() => setIsFilterVisible(false)}
+          onApply={handleApplyFilters}
+          currentFilters={filters}
+        />
 
-              <View style={[styles.gameFooter, { backgroundColor: colors.card }]}>
-                <TouchableOpacity style={styles.joinButton}>
-                  <Text style={styles.joinText}>JOIN</Text>
-                </TouchableOpacity>
-                <Text style={[styles.playerCount, { color: colors.text }]}>
-                  {game.currentPlayers}/{game.maxPlayers} Players
-                </Text>
-              </View>
-            </View>
-          ))}
-        </View>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.gamesContainer}>
+            {games.map((game) => (
+              <View key={game.id} style={[styles.gameContainer, { borderColor: colors.border }]}>
+                <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
+                  <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>
+                  <Text style={[styles.dateText, { color: colors.text }]}>{game.startTime.toString()}</Text>
+                </View>
 
+                <View style={[styles.gameInfo, { backgroundColor: colors.background }]}>
+                  <Image source={getSportImage(game.sportName)} style={styles.sportImage} />
+                  <Text style={[styles.gameTitle, { color: colors.text }]}>{game.name}</Text>
+                  <Text style={[styles.gameDescription, { color: colors.text }]}>{game.description}</Text>
+                </View>
+
+                <View style={[styles.gameFooter, { backgroundColor: colors.card }]}>
+                  <TouchableOpacity style={styles.joinButton}>
+                    <Text style={styles.joinText}>JOIN</Text>
+                  </TouchableOpacity>
+                  <Text style={[styles.playerCount, { color: colors.text }]}>
+                    {game.currentPlayers}/{game.maxPlayers} Players
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -180,5 +228,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     resizeMode: "cover",
+  },
+  loadingContainer: {
+    paddingVertical: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

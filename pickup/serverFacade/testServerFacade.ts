@@ -2,10 +2,11 @@ import User from "@/objects/User";
 import ServerFacade from "./serverFacade";
 import Group from "@/objects/Group";
 import GroupMessage from "@/objects/GroupMessage";
-import { Game, GameStatus, SkillLevel } from "@/objects/Game";
+import { Game, GameStatus, SkillLevel, GameFilter } from "@/objects/Game";
 import Achievement from "@/objects/Achievement";
 import Location from "@/objects/Location";
 import Sport from "@/objects/Sport";
+
 
 
 export default class TestServerFacade implements ServerFacade {
@@ -15,6 +16,7 @@ export default class TestServerFacade implements ServerFacade {
     groups = new Map<number, Group>();
     groupMessages = new Map<number, GroupMessage>();
     sports = new Map<number, Sport>();
+    skillLevels = new Map<number, string>();
     games = new Map<number, Game>();
     achievements = new Map<number, Achievement>();
     locations = new Map<number, Location>();
@@ -53,7 +55,7 @@ export default class TestServerFacade implements ServerFacade {
             1,
             new Date(),
             new Date(Date.now() + 2 * 60 * 60 * 1000),
-            "1",
+            1,
             10,
             GameStatus.Scheduled,
             SkillLevel.Beginner,
@@ -67,7 +69,7 @@ export default class TestServerFacade implements ServerFacade {
             1,
             new Date(),
             new Date(Date.now() + 2 * 60 * 60 * 1000),
-            "2",
+            2,
             8,
             GameStatus.Scheduled,
             SkillLevel.Intermediate,
@@ -81,7 +83,7 @@ export default class TestServerFacade implements ServerFacade {
             2,
             new Date(),
             new Date(Date.now() + 2 * 60 * 60 * 1000),
-            "2",
+            2,
             12,
             GameStatus.Scheduled,
             SkillLevel.Advanced,
@@ -99,6 +101,11 @@ export default class TestServerFacade implements ServerFacade {
 
         this.userGroups.set(1, new Set([1, 3]));
         this.userGroups.set(2, new Set([2, 4]));
+
+        this.skillLevels.set(1, "Beginner");
+        this.skillLevels.set(2, "Intermediate");
+        this.skillLevels.set(3, "Advanced");
+        this.skillLevels.set(4, "Expert");
     }
 
     async getCurrentUser(): Promise<{ token: string, user: User } | null> {
@@ -108,10 +115,10 @@ export default class TestServerFacade implements ServerFacade {
                     resolve(null);
                     return;
                 }
-                
+
                 const user = this.users.get(this.currentUserId);
                 const token = this.sessions.get(this.currentUserId);
-                
+
                 if (user && token) {
                     resolve({ token, user });
                 } else {
@@ -120,7 +127,7 @@ export default class TestServerFacade implements ServerFacade {
             }, 500);
         });
     }
-    
+
     async login(email: string, password: string): Promise<{ token: string, user: User }> {
         const user = Array.from(this.users.values()).find(u => u.email === email);
         console.log(this.users)
@@ -173,10 +180,31 @@ export default class TestServerFacade implements ServerFacade {
         });
     }
 
-    async getGames(): Promise<Game[]> {
+    async getGames(filters?: GameFilter): Promise<Game[]> {
         return new Promise((resolve) => {
             setTimeout(() => {
-                resolve(Array.from(this.games.values()));
+                let games = Array.from(this.games.values());
+                if (!filters) {
+                    resolve(games);
+                    return;
+                }
+                if (filters.sport && filters.sport.length > 0) {
+                    games = games.filter(game => {
+                        const sportName = this.sports.get(game.sportId)?.name;
+                        return sportName && filters.sport?.includes(sportName);
+                    });
+                }
+                if (filters.location) {
+                    games = games.filter(game => this.locations.get(game.locationId)?.address === filters.location);
+                }
+                if (filters.skillLevel && filters.skillLevel.length > 0) {
+                    games = games.filter(game => filters.skillLevel?.includes(game.skillLevel));
+                }
+                if (filters.maxPlayers) {
+                    games = games.filter(game => game.maxPlayers === filters.maxPlayers);
+                }
+
+                resolve(games);
             }, 500);
         });
     }
@@ -203,6 +231,22 @@ export default class TestServerFacade implements ServerFacade {
                 } else {
                     reject(new Error("Game not found"));
                 }
+            }, 500);
+        });
+    }
+
+    async getPossibleSports(): Promise<string[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(Array.from(this.sports.values()).map(sport => sport.name));
+            }, 500);
+        });
+    }
+
+    async getPossibleSkillLevels(): Promise<string[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(Array.from(this.skillLevels.values()));
             }, 500);
         });
     }

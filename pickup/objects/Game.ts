@@ -20,7 +20,7 @@ export class Game {
     createrId: number
     startTime: Date
     endTime: Date
-    locationId: string
+    locationId: number
     maxPlayers: number
     status: GameStatus
     skillLevel: SkillLevel
@@ -35,7 +35,7 @@ export class Game {
         createrId: number,
         startTime: Date,
         endTime: Date,
-        locationId: string,
+        locationId: number,
         maxPlayers: number,
         status: GameStatus,
         skillLevel: SkillLevel,
@@ -56,4 +56,13 @@ export class Game {
         this.isPublic = isPublic
         this.rules = rules
     }
+}
+
+export interface GameFilter {
+    sport?: string[];
+    location?: string;
+    date?: Date;
+    time?: string;
+    skillLevel?: string[];
+    maxPlayers?: number;
 }
