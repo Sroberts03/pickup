@@ -34,8 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(result.user);
             setToken(result.token);
           } else {
-            // Token exists but server doesn't know it (expected with memory server restart)
-            console.log('Session expired or server reset');
             await SecureStore.deleteItemAsync('authToken');
           }
         } else {
@@ -46,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        console.log('User not logged in');
+        console.error("Failed to initialize auth:", error);
       } finally {
         setLoading(false);
       }

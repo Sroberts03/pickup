@@ -133,9 +133,6 @@ export default class TestServerFacade implements ServerFacade {
 
     async login(email: string, password: string): Promise<{ token: string, user: User }> {
         const user = Array.from(this.users.values()).find(u => u.email === email);
-        console.log(this.users)
-        console.log("Logging in user:", email);
-        console.log("Found user:", user);
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (user) {

@@ -8,18 +8,20 @@ import { useEffect, useState } from "react";
 import Sport from "@/objects/Sport";
 import Achievement from "@/objects/Achievement";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import SettingsModal from "@/components/SettingsModal";
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
-  const logout = useAuth().logout;
   const user = useAuth().user as User;
   const server = useServer();
   const [loading, setLoading] = useState(true);
   const [favouriteSports, setFavouriteSports] = useState<Sport[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -36,7 +38,11 @@ export default function ProfileScreen() {
       }
     };
     fetchData();
-  }, []);
+  }, [server, user]);
+  
+  if (!user) {
+    return null;
+  }
 
   const getSportIcon = (sportName: string) => {
     const lowerName = sportName.toLowerCase();
@@ -56,7 +62,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header with Settings */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => console.log("Settings pressed")}>
+          <TouchableOpacity onPress={() => setShowSettings(true)}>
             <Ionicons name="settings-outline" size={28} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -117,6 +123,9 @@ export default function ProfileScreen() {
           </>
         )}
       </ScrollView>
+      {showSettings && (
+        <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
     </SafeAreaView>
   );
 }
