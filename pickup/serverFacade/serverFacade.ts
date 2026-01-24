@@ -1,3 +1,4 @@
+import Achievement from "@/objects/Achievement";
 import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
@@ -22,4 +23,7 @@ export default interface ServerFacade {
     getGamePlayers(gameId: number): Promise<User[]>;
     joinGame(gameId: number): Promise<void>;
     leaveGame(gameId: number): Promise<void>;
+
+    getFavouriteSports(userId: number): Promise<Sport[]>;
+    getUserAchievements(userId: number): Promise<Achievement[]>;
 }

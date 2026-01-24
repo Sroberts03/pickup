@@ -59,7 +59,8 @@ export default class TestServerFacade implements ServerFacade {
             10,
             GameStatus.Scheduled,
             SkillLevel.Beginner,
-            true
+            true,
+            "Normal soccer rules apply"
         ));
         this.games.set(2, new Game(
             2,
@@ -73,7 +74,8 @@ export default class TestServerFacade implements ServerFacade {
             8,
             GameStatus.Scheduled,
             SkillLevel.Intermediate,
-            false
+            false,
+            "Normal basketball rules apply"
         ));
         this.games.set(3, new Game(
             3,
@@ -87,7 +89,8 @@ export default class TestServerFacade implements ServerFacade {
             12,
             GameStatus.Scheduled,
             SkillLevel.Advanced,
-            true
+            true,
+            "Normal football rules apply"
         ));
 
         this.userFavoriteSports.set(1, new Set([1, 2]));
@@ -397,6 +400,32 @@ export default class TestServerFacade implements ServerFacade {
                     this.userGames.get(userId)?.delete(gameId);
                 }
                 resolve();
+            }, 500);
+        });
+    }
+
+    async getFavouriteSports(userId: number): Promise<Sport[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const sports = this.userFavoriteSports.get(userId);
+                if (sports) {
+                    resolve(Array.from(sports).map(id => this.sports.get(id)).filter((sport): sport is Sport => sport !== undefined));
+                } else {
+                    resolve([]);
+                }
+            }, 500);
+        });
+    }
+
+    async getUserAchievements(userId: number): Promise<Achievement[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const achievements = this.userAchievements.get(userId);
+                if (achievements) {
+                    resolve(Array.from(achievements).map(id => this.achievements.get(id)).filter((achievement): achievement is Achievement => achievement !== undefined));
+                } else {
+                    resolve([]);
+                }
             }, 500);
         });
     }
