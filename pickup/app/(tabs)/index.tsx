@@ -3,7 +3,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
 import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
@@ -34,21 +34,22 @@ export default function Index() {
     setFilters(newFilters);
   };
 
-  const fetchGames = async () => {
-    setIsLoading(true);
-    try {
-      const gamesList = await server.getGamesWithDetails(filters || undefined);
-      setGames(gamesList);
-    } catch (error) {
-      console.error("Failed to fetch games:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const fetchGames = useCallback(async () => {
+      setIsLoading(true);
+      try {
+        const gamesList = await server.getGamesWithDetails(filters || undefined);
+        setGames(gamesList);
+      } catch (error) {
+        console.error("Failed to fetch games:", error);
+      } finally {
+        setIsLoading(false);
+      }
+  }, [server, filters]);
+  
 
   useEffect(() => {
     fetchGames();
-  }, [server, filters]);
+  }, [fetchGames]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
