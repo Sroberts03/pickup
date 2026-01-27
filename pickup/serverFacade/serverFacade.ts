@@ -27,4 +27,16 @@ export default interface ServerFacade {
     getFavouriteSports(userId: number): Promise<Sport[]>;
     getUserAchievements(userId: number): Promise<Achievement[]>;
     getUserGames(userId: number): Promise<GameWithDetails[]>;
+    createGame(gameData: {
+        name: string;
+        description: string;
+        sportId: number;
+        startTime: Date;
+        endTime: Date;
+        locationId: number;
+        maxPlayers: number;
+        skillLevel: string;
+        isPrivate: boolean;
+        rules: string;
+    }): Promise<Game>;
 }

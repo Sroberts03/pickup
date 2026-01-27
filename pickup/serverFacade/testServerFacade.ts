@@ -457,4 +457,53 @@ export default class TestServerFacade implements ServerFacade {
             }, 500);
         });
     }
+
+    async createGame(gameData: {
+        name: string;
+        description: string;
+        sportId: number;
+        startTime: Date;
+        endTime: Date;
+        locationId: number;
+        maxPlayers: number;
+        skillLevel: string;
+        isPrivate: boolean;
+        rules: string;
+    }): Promise<Game> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (!this.currentUserId) {
+                    reject(new Error("User not logged in"));
+                    return;
+                }
+
+                const newGameId = this.games.size + 1;
+                const newGame = new Game(
+                    newGameId,
+                    gameData.name,
+                    gameData.description,
+                    gameData.sportId,
+                    this.currentUserId,
+                    gameData.startTime,
+                    gameData.endTime,
+                    gameData.locationId,
+                    gameData.maxPlayers,
+                    GameStatus.Scheduled,
+                    gameData.skillLevel as SkillLevel,
+                    gameData.isPrivate,
+                    gameData.rules
+                );
+
+                this.games.set(newGameId, newGame);
+                
+                // Auto-join the creator to the game
+                if (!this.userGames.has(this.currentUserId)) {
+                    this.userGames.set(this.currentUserId, new Set());
+                }
+                this.userGames.get(this.currentUserId)?.add(newGameId);
+
+                resolve(newGame);
+            }, 500);
+        });
+    }
 }

@@ -9,6 +9,7 @@ import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
 import SearchModal from "@/components/SearchModal";
 import GameDetailsModal from "@/components/GameDetailsModal";
+import CreateGameModal from "@/components/CreateGameModal";
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -27,6 +28,7 @@ export default function Index() {
   const [filters, setFilters] = useState<GameFilter | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isCreateGameVisible, setIsCreateGameVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -127,6 +129,23 @@ export default function Index() {
           fetchGames();
         }}
       />
+
+      <CreateGameModal
+        visible={isCreateGameVisible}
+        onClose={() => setIsCreateGameVisible(false)}
+        onGameCreated={() => {
+          fetchGames();
+        }}
+      />
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={[styles.fab, { bottom: insets.bottom + tabBarHeight + 20 }]}
+        onPress={() => setIsCreateGameVisible(true)}
+        activeOpacity={0.8}
+      >
+        <Feather name="plus" size={24} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -220,5 +239,23 @@ const styles = StyleSheet.create({
     paddingVertical: 50,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
