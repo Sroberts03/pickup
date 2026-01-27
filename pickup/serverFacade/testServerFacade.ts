@@ -334,6 +334,36 @@ export default class TestServerFacade implements ServerFacade {
         });
     }
 
+    async updateUser(userId: number, userData: Partial<{
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        isPublic: boolean;
+        profilePicUrl: string;
+    }>): Promise<User> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const user = this.users.get(userId);
+                if (!user) {
+                    reject(new Error('User not found'));
+                    return;
+                }
+
+                // Update user properties
+                if (userData.firstName !== undefined) user.firstName = userData.firstName;
+                if (userData.lastName !== undefined) user.lastName = userData.lastName;
+                if (userData.email !== undefined) user.email = userData.email;
+                if (userData.isPublic !== undefined) user.isPublic = userData.isPublic;
+                if (userData.profilePicUrl !== undefined) user.profilePicUrl = userData.profilePicUrl;
+                // Note: In real implementation, password would be hashed
+
+                this.users.set(userId, user);
+                resolve(user);
+            }, 500);
+        });
+    }
+
     async getGamePlayers(gameId: number): Promise<User[]> {
         return new Promise((resolve) => {
             setTimeout(() => {

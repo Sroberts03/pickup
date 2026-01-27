@@ -81,8 +81,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
   };
 
+  const updateUser = async (userData: Partial<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    isPublic: boolean;
+    profilePicUrl: string;
+  }>) => {
+    if (!user) {
+      throw new Error('No user logged in');
+    }
+
+    const updatedUser = await server.updateUser(user.id, userData);
+    setUser(updatedUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, signup, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, signup, login, logout, loading, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

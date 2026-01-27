@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, SafeAreaView } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import EditProfileModal from './EditProfileModal';
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ onClose }: SettingsModalProps) {
   const { colors } = useTheme();
   const logout  = useAuth().logout;
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -22,9 +24,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   };
 
   const handleEditProfile = () => {
-    // TODO: Navigate to edit profile screen
-    console.log('Edit Profile pressed');
-    onClose();
+    setShowEditProfile(true);
   };
 
   const handleEditFavoriteSports = () => {
@@ -73,6 +73,10 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      {showEditProfile && (
+        <EditProfileModal onClose={() => setShowEditProfile(false)} />
+      )}
     </Modal>
   );
 }

@@ -20,6 +20,14 @@ export default interface ServerFacade {
     searchUsers(query: string): Promise<User[]>;
 
     getUser(userId: number): Promise<User | undefined>;
+    updateUser(userId: number, userData: Partial<{
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        isPublic: boolean;
+        profilePicUrl: string;
+    }>): Promise<User>;
     getGamePlayers(gameId: number): Promise<User[]>;
     joinGame(gameId: number): Promise<void>;
     leaveGame(gameId: number): Promise<void>;
