@@ -426,4 +426,35 @@ export default class TestServerFacade implements ServerFacade {
             }, 500);
         });
     }
+
+    async getUserGames(userId: number): Promise<GameWithDetails[]> {
+        return new Promise(async (resolve) => {
+            setTimeout(async () => {
+                const userGameIds = this.userGames.get(userId);
+                if (!userGameIds) {
+                    resolve([]);
+                    return;
+                }
+
+                const userGames = Array.from(userGameIds)
+                    .map(gameId => this.games.get(gameId))
+                    .filter((game): game is Game => game !== undefined);
+
+                const gamesWithDetails = await Promise.all(
+                    userGames.map(async (game) => {
+                        const sport = await this.getSport(game.sportId);
+                        const currentPlayers = await this.getGamePlayerCount(game.id);
+
+                        return {
+                            ...game,
+                            sportName: sport.name,
+                            currentPlayers: currentPlayers,
+                        };
+                    })
+                );
+
+                resolve(gamesWithDetails);
+            }, 500);
+        });
+    }
 }

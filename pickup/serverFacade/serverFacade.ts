@@ -26,4 +26,5 @@ export default interface ServerFacade {
 
     getFavouriteSports(userId: number): Promise<Sport[]>;
     getUserAchievements(userId: number): Promise<Achievement[]>;
+    getUserGames(userId: number): Promise<GameWithDetails[]>;
 }

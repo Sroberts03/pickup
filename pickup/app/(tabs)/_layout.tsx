@@ -40,7 +40,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="discover"
+        name="myGames"
         options={{
           title: "My Games",
           tabBarIcon: ({ color, size }) => (
