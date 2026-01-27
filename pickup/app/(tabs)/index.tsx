@@ -98,6 +98,9 @@ export default function Index() {
                   <Text style={[styles.playerCount, { color: colors.text }]}>
                     {game.currentPlayers}/{game.maxPlayers} Players
                   </Text>
+                  <Text style={[styles.skillLevelText, { color: colors.text }]}>
+                    {game.skillLevel}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -210,9 +213,9 @@ const styles = StyleSheet.create({
   gameFooter: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 15,
     paddingVertical: 12,
-    gap: 15,
   },
   joinButton: {
     backgroundColor: '#007AFF',
@@ -227,6 +230,10 @@ const styles = StyleSheet.create({
   },
   playerCount: {
     fontSize: 12,
+  },
+  skillLevelText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   sportImage: {
     width: "100%",

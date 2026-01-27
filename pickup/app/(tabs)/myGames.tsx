@@ -143,7 +143,10 @@ export default function MyGamesScreen() {
                               <Text style={[styles.gameTitle, { color: colors.text }]}>{game.name}</Text>
                               <Text style={[styles.gameDescription, { color: colors.text }]}>{game.description}</Text>
                             </View>
-                            <View style={styles.playerCountContainer}>
+                            <View style={styles.gameFooter}>
+                              <View style={styles.skillLevelBadge}>
+                                <Text style={styles.skillLevelBadgeText}>{game.skillLevel}</Text>
+                              </View>
                               <Text style={[styles.playerCount, { color: colors.text }]}>
                                 {game.currentPlayers}/{game.maxPlayers} players
                               </Text>
@@ -243,6 +246,24 @@ const styles = StyleSheet.create({
   playerCountContainer: {
     alignItems: 'flex-end',
     marginTop: 8,
+  },
+  gameFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  skillLevelBadge: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  skillLevelBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
   playerCount: {
     fontSize: 12,

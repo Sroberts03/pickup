@@ -114,7 +114,12 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
                         <Image source={getSportImage(game.sportName)} style={styles.mainImage} />
 
                         <Text style={[styles.title, { color: colors.text }]}>{game.name}</Text>
-                        <Text style={[styles.description, { color: colors.text }]}>{game.description}</Text>
+                        <View style={styles.titleRow}>
+                            <Text style={[styles.description, { color: colors.text, flex: 1 }]}>{game.description}</Text>
+                            <View style={styles.skillLevelBadge}>
+                                <Text style={styles.skillLevelBadgeText}>{game.skillLevel}</Text>
+                            </View>
+                        </View>
 
                         <View style={styles.mapContainer}>
                             <Text style={{ color: '#888' }}>MAP</Text>
@@ -316,7 +321,27 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         letterSpacing: 1,
-    }
+    },
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    skillLevelBadge: {
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        marginLeft: 12,
+        marginTop: 2,
+    },
+    skillLevelBadgeText: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+    },
 });
 
 export default GameDetailsModal;
