@@ -3,10 +3,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { useColorScheme, ActivityIndicator, View } from "react-native";
 import { ServerContext } from "../contexts/ServerContext";
-import TestServerFacade from "@/serverFacade/testServerFacade";
 import { AuthProvider } from '../auth/AuthProvider';
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
+import { getServerFacade } from "@/serverFacade/serverFactory";
 
 function RootLayoutNav() {
   const { user, loading } = useAuth();
@@ -43,7 +43,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const serverFacade = new TestServerFacade();
+  const serverFacade = React.useMemo(() => getServerFacade(), []);
 
   return (
     <SafeAreaProvider>
