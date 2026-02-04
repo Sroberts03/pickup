@@ -1,13 +1,17 @@
 import TestServerFacade from './testServerFacade';
 
+declare global {
+  var testArguments: { useMocks?: boolean } | undefined;
+}
+
 export const getServerFacade = () => {
-  if (process.env.EXPO_PUBLIC_API_MODE === 'mock') {
-    return new TestServerFacade();
-  }
+    const isMockEnv = process.env.EXPO_PUBLIC_API_MODE === 'mock';
+  
+    const isTestingArgs = global.testArguments?.useMocks === true;
 
-  if (global.testArguments?.useMocks) {
-    return new TestServerFacade();
-  }
+    if (isMockEnv || isTestingArgs) {
+       return new TestServerFacade();
+    }
 
-  throw new Error('No server facade implementation for the current mode.');
+    throw new Error('No server facade implementation for the current mode.');
 };

@@ -5,7 +5,7 @@ import { useColorScheme, ActivityIndicator, View } from "react-native";
 import { ServerContext } from "../contexts/ServerContext";
 import { AuthProvider } from '../auth/AuthProvider';
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { getServerFacade } from "@/serverFacade/serverFactory";
 
 function RootLayoutNav() {
