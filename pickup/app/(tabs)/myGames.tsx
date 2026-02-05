@@ -1,12 +1,12 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator } from "react-native";
+import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useTheme, useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useState } from "react";
-import { useServer } from "@/contexts/ServerContext";
+import { useTheme } from "@react-navigation/native";
+import React, { useState } from "react";
 import { GameWithDetails } from "@/objects/Game";
 import GameDetailsModal from "@/components/GameDetailsModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -18,33 +18,11 @@ function getSportImage(sportName: string): ImageSourcePropType {
 
 export default function MyGamesScreen() {
   const { colors } = useTheme();
-  const server = useServer();
   const { user } = useAuth();
+  const { userGames: games, loading, refreshData } = useData();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
-  const [games, setGames] = useState<GameWithDetails[]>([]);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchUserGames = useCallback(async () => {
-    if (!user) return;
-    
-    setIsLoading(true);
-    try {
-      const userGames = await server.getUserGames(user.id);
-      setGames(userGames);
-    } catch (error) {
-      console.error("Failed to fetch user games:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [server, user]);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchUserGames();
-    }, [fetchUserGames])
-  );
 
   const formatDateTime = (date: Date) => {
     const today = new Date();
@@ -105,8 +83,11 @@ export default function MyGamesScreen() {
         style={styles.content}
         contentContainerStyle={{ paddingBottom: insets.bottom + tabBarHeight }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+           <RefreshControl refreshing={loading} onRefresh={refreshData} />
+        }
       >
-        {isLoading ? (
+        {loading && games.length === 0 ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
@@ -168,7 +149,11 @@ export default function MyGamesScreen() {
         game={selectedGame}
         onClose={() => {
           setSelectedGame(null);
-          fetchUserGames();
+          // Data is auto-refreshed by GameDetailsModal calling refreshData() internally or via context?
+          // We need GameDetailsModal to call refreshData()!
+          // Or we can call it here if we insist, but GameDetailsModal is better.
+          // Let's call refreshData here too just in case the modal didn't.
+          refreshData();
         }}
       />
     </SafeAreaView>

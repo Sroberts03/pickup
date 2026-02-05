@@ -37,8 +37,14 @@ export default class TestServerFacade implements ServerFacade {
     userGroups = new Map<number, Set<number>>();
 
     constructor() {
-        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", true));
-        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", true));
+        const twoYearsAgo = new Date();
+        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", true, twoYearsAgo));
+        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", true, oneYearAgo));
 
         this.groups.set(1, new Group(1, "Morning Joggers", "Group for early morning jogs", false, new Date(), 1, 1));
         this.groups.set(2, new Group(2, "Evening Cyclists", "Group for evening cycling sessions", true, new Date(), 2, null));
@@ -526,6 +532,19 @@ export default class TestServerFacade implements ServerFacade {
                 );
 
                 resolve(gamesWithDetails);
+            }, 500);
+        });
+    }
+
+    async getUserStats(userId: number): Promise<{ gamesPlayed: number; gamesOrganized: number; joinedAt: Date }> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const gamesPlayed = this.userGames.get(userId)?.size || 0;
+                const gamesOrganized = Array.from(this.games.values()).filter(g => g.creatorId === userId).length;
+                const user = this.users.get(userId);
+                const joinedAt = user ? user.joinedAt : new Date();
+
+                resolve({ gamesPlayed, gamesOrganized, joinedAt });
             }, 500);
         });
     }

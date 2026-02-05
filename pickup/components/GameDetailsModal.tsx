@@ -7,6 +7,8 @@ import { GameWithDetails } from "@/objects/Game";
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import User from "@/objects/User";
 import Location from "@/objects/Location";
+import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
 
 interface GameDetailsModalProps {
     visible: boolean;
@@ -17,6 +19,8 @@ interface GameDetailsModalProps {
 const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onClose }) => {
     const { colors } = useTheme();
     const server = useServer();
+    const { user } = useAuth();
+    const { refreshData } = useData();
     const [creator, setCreator] = useState<User | undefined>(undefined);
     const [players, setPlayers] = useState<User[]>([]);
     const [hasJoined, setHasJoined] = useState(false);
@@ -61,15 +65,20 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
             if (hasJoined) {
                 await server.leaveGame(game.id);
                 setHasJoined(false);
-                setPlayers(prev => prev.filter(p => p.id !== currentUser.user.id)); // Optimistic update: ideally we filter by ID but we don't have current user ID handy without refetching or storing it 
+                if (user) {
+                     setPlayers(prev => prev.filter(p => p.id !== user.id));
+                }
+                
                 // Let's refetch to be safe and simple
                 const fetchedPlayers = await server.getGamePlayers(game.id);
                 setPlayers(fetchedPlayers);
+                refreshData(); 
             } else {
                 await server.joinGame(game.id);
                 setHasJoined(true);
                 const fetchedPlayers = await server.getGamePlayers(game.id);
                 setPlayers(fetchedPlayers);
+                refreshData();
             }
         } catch (error) {
             Alert.alert("Error", "Failed to update game participation.");

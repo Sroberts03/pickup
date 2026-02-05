@@ -3,39 +3,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/contexts/AuthContext";
 import User from "@/objects/User";
-import { useServer } from "@/contexts/ServerContext";
-import { useCallback, useEffect, useState } from "react";
-import Sport from "@/objects/Sport";
+import { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import SettingsModal from "@/components/SettingsModal";
+import { useData } from "@/contexts/DataContext";
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
   const user = useAuth().user as User;
-  const server = useServer();
-  const [loading, setLoading] = useState(true);
-  const [favouriteSports, setFavouriteSports] = useState<Sport[]>([]);
+  const { favoriteSports, userStats: stats, loading, refreshData } = useData();
   const [showSettings, setShowSettings] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
-  const fetchProfileData = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const sports = await server.getFavouriteSports(user.id);
-      setFavouriteSports(sports);
-      setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
-    } catch (error) {
-      console.error("Failed to fetch profile data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [server, user]);
-
   useEffect(() => {
-    fetchProfileData();
-  }, [fetchProfileData]);
-  
+    if (user) {
+        setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
+    }
+  }, [user]);
+
   if (!user) {
     return null;
   }
@@ -87,7 +72,7 @@ export default function ProfileScreen() {
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>favorite sports</Text>
               <View style={styles.pillsContainer}>
-                {favouriteSports.map((sport) => (
+                {favoriteSports.map((sport) => (
                   <View key={sport.id} style={styles.pill}>
                     <Ionicons name={getSportIcon(sport.name) as any} size={16} color="#000" style={styles.pillIcon} />
                     <Text style={styles.pillText}>{sport.name}</Text>
@@ -95,13 +80,34 @@ export default function ProfileScreen() {
                 ))}
               </View>
             </View>
+
+            {/* Quick Stats */}
+            {stats && (
+              <View style={styles.section}>
+                 <Text style={[styles.sectionTitle, { color: colors.text }]}>quick stats</Text>
+                 <View style={styles.statsContainer}>
+                    <View style={styles.statItem}>
+                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesPlayed}</Text>
+                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Played</Text>
+                    </View>
+                    <View style={[styles.statItem, styles.statBorder]}>
+                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesOrganized}</Text>
+                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Organized</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.joinedAt.getFullYear()}</Text>
+                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Member Since</Text>
+                    </View>
+                 </View>
+              </View>
+            )}
           </>
         )}
       </ScrollView>
       {showSettings && (
         <SettingsModal
           onClose={() => setShowSettings(false)}
-          onFavoritesUpdated={fetchProfileData}
+          onFavoritesUpdated={refreshData}
         />
       )}
     </SafeAreaView>
@@ -181,5 +187,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#000',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: 'rgba(150, 150, 150, 0.1)',
+    borderRadius: 16,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statBorder: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'rgba(150, 150, 150, 0.2)',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });

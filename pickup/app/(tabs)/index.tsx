@@ -1,7 +1,7 @@
 import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useTheme } from "@react-navigation/native";
+import { useTheme, useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
@@ -110,9 +110,11 @@ export default function Index() {
   }, []);
   
 
-  useEffect(() => {
-    fetchGames();
-  }, [fetchGames]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchGames();
+    }, [fetchGames])
+  );
 
   useEffect(() => {
     requestAndLoadLocation();

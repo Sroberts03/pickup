@@ -47,6 +47,8 @@ function RootLayoutNav() {
   );
 }
 
+import { DataProvider } from "@/contexts/DataContext";
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const serverFacade = React.useMemo(() => getServerFacade(), []);
@@ -56,7 +58,9 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <ServerContext.Provider value={serverFacade}>
           <AuthProvider>
-            <RootLayoutNav />
+            <DataProvider>
+              <RootLayoutNav />
+            </DataProvider>
           </AuthProvider>
         </ServerContext.Provider>
       </ThemeProvider>
