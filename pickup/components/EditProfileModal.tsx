@@ -8,7 +8,6 @@ import {
   SafeAreaView, 
   TextInput, 
   ScrollView,
-  Image,
   Switch,
   Alert,
   ActivityIndicator
@@ -63,11 +62,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
     }
   };
 
-  const handleChangePicture = () => {
-    // TODO: Implement profile picture change functionality
-    Alert.alert('Change Picture', 'Profile picture feature coming soon!');
-  };
-
   const togglePublicProfile = () => {
     setIsPublic(!isPublic);
   };
@@ -89,21 +83,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Profile Picture Section */}
-          <View style={styles.profilePictureSection}>
-            <View style={styles.avatarContainer}>
-              {user?.profilePicUrl ? (
-                <Image source={{ uri: user.profilePicUrl }} style={styles.avatar} />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Ionicons name="person-outline" size={60} color="#757575" />
-                </View>
-              )}
-            </View>
-            <TouchableOpacity onPress={handleChangePicture}>
-              <Text style={styles.changePictureText}>CHANGE PICTURE</Text>
-            </TouchableOpacity>
-          </View>
 
           {/* Form Fields */}
           <View style={styles.formSection}>
