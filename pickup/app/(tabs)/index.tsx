@@ -5,6 +5,7 @@ import { useTheme } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
 import SearchModal from "@/components/SearchModal";
@@ -23,6 +24,7 @@ function getSportImage(sportName: string): ImageSourcePropType {
 export default function Index() {
   const { colors } = useTheme();
   const server = useServer();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const [games, setGames] = useState<GameWithDetails[]>([]);
@@ -48,17 +50,44 @@ export default function Index() {
               radiusKm: 25,
             }
           : {};
-        const gamesList = await server.getGamesWithDetails({
+        let finalFilters: GameFilter = {
           ...(filters || {}),
           ...locationFilters,
-        });
+        };
+
+        if (filters?.favoriteOnly && user) {
+          const favorites = await server.getFavouriteSports(user.id);
+          const favoriteNames = favorites.map((sport) => sport.name);
+          if (favoriteNames.length === 0) {
+            setGames([]);
+            return;
+          }
+
+          if (finalFilters.sport && finalFilters.sport.length > 0) {
+            finalFilters = {
+              ...finalFilters,
+              sport: finalFilters.sport.filter((name) => favoriteNames.includes(name)),
+            };
+            if (finalFilters.sport.length === 0) {
+              setGames([]);
+              return;
+            }
+          } else {
+            finalFilters = {
+              ...finalFilters,
+              sport: favoriteNames,
+            };
+          }
+        }
+
+        const gamesList = await server.getGamesWithDetails(finalFilters);
         setGames(gamesList);
       } catch (error) {
         console.error("Failed to fetch games:", error);
       } finally {
         setIsLoading(false);
       }
-  }, [server, filters, userLocation]);
+  }, [server, filters, userLocation, user]);
 
   const requestAndLoadLocation = useCallback(async () => {
     try {

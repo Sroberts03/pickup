@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Switch } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { GameFilter } from "@/objects/Game";
@@ -21,6 +21,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
     const [sport, setSport] = useState<string[]>(currentFilters?.sport || []);
     const [skillLevel, setSkillLevel] = useState<string[]>(currentFilters?.skillLevel || []);
     const [maxPlayers, setMaxPlayers] = useState<string | undefined>(currentFilters?.maxPlayers?.toString());
+    const [favoriteOnly, setFavoriteOnly] = useState<boolean>(currentFilters?.favoriteOnly || false);
 
     const [sports, setSports] = useState<string[]>([]);
     const [skillLevels, setSkillLevels] = useState<string[]>([]);
@@ -40,6 +41,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
             setSport(currentFilters?.sport || []);
             setSkillLevel(currentFilters?.skillLevel || []);
             setMaxPlayers(currentFilters?.maxPlayers?.toString());
+            setFavoriteOnly(currentFilters?.favoriteOnly || false);
         }
     }, [visible, currentFilters]);
 
@@ -47,7 +49,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
         const filters: GameFilter = {
             sport,
             skillLevel,
-            maxPlayers: maxPlayers ? parseInt(maxPlayers) : undefined
+            maxPlayers: maxPlayers ? parseInt(maxPlayers) : undefined,
+            favoriteOnly
         };
         // Clean up undefined values
         if (filters.sport && filters.sport.length === 0) delete filters.sport;
@@ -62,6 +65,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
         setSport([]);
         setSkillLevel([]);
         setMaxPlayers(undefined);
+        setFavoriteOnly(false);
         onApply({} as GameFilter); // modify this based on how clear should be handled
         onClose();
     };
@@ -99,6 +103,15 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                     </View>
 
                     <ScrollView style={styles.scrollView}>
+                        <View style={styles.favoriteRow}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Favorite Sports Only</Text>
+                            <Switch
+                                value={favoriteOnly}
+                                onValueChange={setFavoriteOnly}
+                                trackColor={{ false: "#E0E0E0", true: "#007AFF" }}
+                                thumbColor={"#FFFFFF"}
+                            />
+                        </View>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Sport</Text>
                         <View style={styles.pillsContainer}>
                             {sports.map((s) => (
@@ -204,6 +217,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         marginTop: 15,
+        marginBottom: 10,
+    },
+    favoriteRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         marginBottom: 10,
     },
     pillsContainer: {

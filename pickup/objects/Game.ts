@@ -69,6 +69,7 @@ export interface GameFilter {
     latitude?: number;
     longitude?: number;
     radiusKm?: number;
+    favoriteOnly?: boolean;
 }
 
 export interface GameWithDetails extends Game {
