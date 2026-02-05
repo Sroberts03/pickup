@@ -101,7 +101,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     firstName: string;
     lastName: string;
     email: string;
-    isPublic: boolean;
     profilePicUrl: string;
   }>) => {
     if (!user) {

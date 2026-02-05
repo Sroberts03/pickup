@@ -13,7 +13,6 @@ export default function SignupPage() {
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [isPublic, setIsPublic] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const handleSignup = async () => {
@@ -23,7 +22,7 @@ export default function SignupPage() {
         }
         try {
             setError(null);
-            await signup(email, password, firstName, lastName, isPublic);
+            await signup(email, password, firstName, lastName);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setError("Signup failed. Please try again.");
@@ -70,20 +69,6 @@ export default function SignupPage() {
                     style={[styles.input, { borderColor: colors.border, color: colors.text }]}
                     placeholderTextColor={colors.text}
                 />
-                <View style={styles.toggleContainer}>
-                    <View style={styles.toggleHeader}>
-                        <Text style={[styles.toggleLabel, { color: colors.text }]}>Public Account</Text>
-                        <Switch 
-                            value={isPublic}
-                            onValueChange={setIsPublic}
-                            trackColor={{ false: '#767577', true: '#81c784' }}
-                            thumbColor={isPublic ? '#4caf50' : '#f4f3f4'}
-                        />
-                    </View>
-                    <Text style={[styles.publicAccountText, { color: colors.text }]}>
-                        {isPublic ? "Your profile will be searchable to others." : "Your profile will be private and not searchable."}
-                    </Text>
-                </View>
             </View>
             <View style={styles.loginTextContainer}>
                 <Text style={[styles.loginText, { color: colors.text }]}>
@@ -200,11 +185,6 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
-  },
-  publicAccountText: {
-    fontSize: 12,
-    color: '#666',
-    lineHeight: 16,
   },
   loginTextContainer: {
     flexDirection: 'row',

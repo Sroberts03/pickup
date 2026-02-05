@@ -27,7 +27,6 @@ export default interface ServerFacade {
         lastName: string;
         email: string;
         password: string;
-        isPublic: boolean;
         profilePicUrl: string;
     }>): Promise<User>;
     getGamePlayers(gameId: number): Promise<User[]>;
@@ -46,7 +45,6 @@ export default interface ServerFacade {
         endTime: Date;
         maxPlayers: number;
         skillLevel: string;
-        isPrivate: boolean;
         rules: string;
         address: string;
         placeId: string;

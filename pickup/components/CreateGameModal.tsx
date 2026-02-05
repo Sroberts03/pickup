@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Switch,
   Alert,
   Platform
 } from "react-native";
@@ -46,7 +45,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
   const [lng, setLng] = useState<Float | null>(null);
   const [maxPlayers, setMaxPlayers] = useState("");
   const [skillLevel, setSkillLevel] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
   const [rules, setRules] = useState("");
   const [selectedSport, setSelectedSport] = useState("");
   const [sports, setSports] = useState<string[]>([]);
@@ -108,7 +106,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
         endTime,
         maxPlayers: Number(maxPlayers),
         skillLevel: skillLevel as any,
-        isPrivate,
         rules: rules.trim(),
         address,
         placeId,
@@ -145,7 +142,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
     setLng(null);
     setSelectedSport(sports.length > 0 ? sports[0] : "");
     setSkillLevel(skillLevels.length > 0 ? skillLevels[0] : "");
-    setIsPrivate(false);
   };
 
   const onStartTimeChange = (event: any, selectedDate?: Date) => {
@@ -292,19 +288,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                 <Text style={{ color: '#333' }}>{skillLevel || 'Select skill level'}</Text>
               </TouchableOpacity>
             </View>
-          </View>
-
-          <View style={[styles.switchRow, { borderBottomColor: colors.border }]}>
-            <View style={styles.switchInfo}>
-              <Feather name="info" size={16} color={colors.text} />
-              <Text style={[styles.switchLabel, { color: colors.text }]}>Private Game</Text>
-            </View>
-            <Switch
-              value={isPrivate}
-              onValueChange={setIsPrivate}
-              trackColor={{ false: '#767577', true: '#4CAF50' }}
-              thumbColor={isPrivate ? '#fff' : '#f4f3f4'}
-            />
           </View>
 
           <View style={styles.inputGroup}>

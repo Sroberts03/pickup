@@ -352,8 +352,6 @@ export default class TestServerFacade implements ServerFacade {
                 const allUsers = Array.from(this.users.values());
 
                 const filteredUsers = allUsers.filter(user => {
-                    if (!user.isPublic) return false;
-
                     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
                     return fullName.includes(lowerQuery) ||
                         user.email.toLowerCase().includes(lowerQuery);
@@ -377,7 +375,6 @@ export default class TestServerFacade implements ServerFacade {
         lastName: string;
         email: string;
         password: string;
-        isPublic: boolean;
     }>): Promise<User> {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -391,7 +388,6 @@ export default class TestServerFacade implements ServerFacade {
                 if (userData.firstName !== undefined) user.firstName = userData.firstName;
                 if (userData.lastName !== undefined) user.lastName = userData.lastName;
                 if (userData.email !== undefined) user.email = userData.email;
-                if (userData.isPublic !== undefined) user.isPublic = userData.isPublic;
                 // Note: In real implementation, password would be hashed
 
                 this.users.set(userId, user);
@@ -551,7 +547,6 @@ export default class TestServerFacade implements ServerFacade {
         endTime: Date;
         maxPlayers: number;
         skillLevel: string;
-        isPrivate: boolean;
         rules: string;
         address: string;
         placeId: string;
@@ -591,7 +586,6 @@ export default class TestServerFacade implements ServerFacade {
                     gameData.maxPlayers,
                     GameStatus.Scheduled,
                     gameData.skillLevel as SkillLevel,
-                    gameData.isPrivate,
                     gameData.rules
                 );
 

@@ -8,7 +8,6 @@ import {
   SafeAreaView, 
   TextInput, 
   ScrollView,
-  Switch,
   Alert,
   ActivityIndicator
 } from 'react-native';
@@ -28,8 +27,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
   const [lastName, setLastName] = useState(user?.lastName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
-  const [isPublic, setIsPublic] = useState(user?.isPublic || false);
-  const [showPublicTooltip, setShowPublicTooltip] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveChanges = async () => {
@@ -44,7 +41,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: email.trim(),
-        isPublic: isPublic,
       };
 
       if (password.trim()) {
@@ -60,10 +56,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const togglePublicProfile = () => {
-    setIsPublic(!isPublic);
   };
 
   return (
@@ -127,35 +119,6 @@ export default function EditProfileModal({ onClose }: EditProfileModalProps) {
                 onChangeText={setPassword}
                 secureTextEntry={true}
               />
-            </View>
-
-            {/* Public Profile Toggle */}
-            <View style={styles.publicProfileContainer}>
-              <View style={styles.publicProfileRow}>
-                <TouchableOpacity 
-                  onPress={() => setShowPublicTooltip(!showPublicTooltip)}
-                  style={styles.publicProfileLabelContainer}
-                >
-                  <Ionicons name="information-circle-outline" size={20} color="#999" />
-                  <Text style={[styles.publicProfileLabel, { color: colors.text }]}>
-                    Public Profile
-                  </Text>
-                </TouchableOpacity>
-                <Switch
-                  value={isPublic}
-                  onValueChange={togglePublicProfile}
-                  trackColor={{ false: '#E0E0E0', true: '#34C759' }}
-                  thumbColor={isPublic ? '#fff' : '#fff'}
-                />
-              </View>
-              
-              {showPublicTooltip && (
-                <View style={styles.tooltip}>
-                  <Text style={styles.tooltipText}>
-                    Description of what a public profile is
-                  </Text>
-                </View>
-              )}
             </View>
           </View>
         </ScrollView>
@@ -243,27 +206,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
     fontSize: 16,
-  },
-  publicProfileContainer: {
-    marginTop: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-  },
-  publicProfileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  publicProfileLabelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  publicProfileLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
   },
   tooltip: {
     marginTop: 10,

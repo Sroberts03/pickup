@@ -24,7 +24,6 @@ export class Game {
     maxPlayers: number
     status: GameStatus
     skillLevel: SkillLevel
-    isPublic: boolean
     rules: string | null
 
     constructor(
@@ -39,7 +38,6 @@ export class Game {
         maxPlayers: number,
         status: GameStatus,
         skillLevel: SkillLevel,
-        isPublic: boolean,
         rules: string | null = null
     ) {
         this.id = id
@@ -53,7 +51,6 @@ export class Game {
         this.maxPlayers = maxPlayers
         this.status = status
         this.skillLevel = skillLevel
-        this.isPublic = isPublic
         this.rules = rules
     }
 }
