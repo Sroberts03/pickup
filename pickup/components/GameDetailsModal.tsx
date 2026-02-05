@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
 import { GameWithDetails } from "@/objects/Game";
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import User from "@/objects/User";
 import Location from "@/objects/Location";
 
@@ -141,6 +141,15 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
                                     longitudeDelta: 0.01,
                                 }}
                             >
+                            <Marker
+                                coordinate={{
+                                    latitude: location.lat,
+                                    longitude: location.lng,
+                                }}
+                                title={game.name}
+                                description={location.address}
+                                pinColor="#ff0000"
+                            />
                             </MapView>
                             )}
                         </View>
