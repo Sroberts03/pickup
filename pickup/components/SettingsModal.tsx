@@ -4,15 +4,18 @@ import { useTheme } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import EditProfileModal from './EditProfileModal';
+import EditFavoriteSportsModal from './EditFavoriteSportsModal';
 
 interface SettingsModalProps {
   onClose: () => void;
+  onFavoritesUpdated?: () => void;
 }
 
-export default function SettingsModal({ onClose }: SettingsModalProps) {
+export default function SettingsModal({ onClose, onFavoritesUpdated }: SettingsModalProps) {
   const { colors } = useTheme();
   const logout  = useAuth().logout;
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showEditFavoriteSports, setShowEditFavoriteSports] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,9 +31,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
   };
 
   const handleEditFavoriteSports = () => {
-    // TODO: Navigate to edit favorite sports screen
-    console.log('Edit Favorite Sports pressed');
-    onClose();
+    setShowEditFavoriteSports(true);
   };
 
   return (
@@ -76,6 +77,12 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
 
       {showEditProfile && (
         <EditProfileModal onClose={() => setShowEditProfile(false)} />
+      )}
+      {showEditFavoriteSports && (
+        <EditFavoriteSportsModal
+          onClose={() => setShowEditFavoriteSports(false)}
+          onSaved={onFavoritesUpdated}
+        />
       )}
     </Modal>
   );

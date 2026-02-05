@@ -4,7 +4,7 @@ import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/contexts/AuthContext";
 import User from "@/objects/User";
 import { useServer } from "@/contexts/ServerContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Sport from "@/objects/Sport";
 import Achievement from "@/objects/Achievement";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,27 +20,27 @@ export default function ProfileScreen() {
   const [showSettings, setShowSettings] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchProfileData = useCallback(async () => {
     if (!user) return;
-    
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [sports, userAchievements] = await Promise.all([
-          server.getFavouriteSports(user.id),
-          server.getUserAchievements(user.id)
-        ]);
-        setFavouriteSports(sports);
-        setAchievements(userAchievements);
-        setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
-      } catch (error) {
-        console.error("Failed to fetch profile data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    setLoading(true);
+    try {
+      const [sports, userAchievements] = await Promise.all([
+        server.getFavouriteSports(user.id),
+        server.getUserAchievements(user.id)
+      ]);
+      setFavouriteSports(sports);
+      setAchievements(userAchievements);
+      setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
+    } catch (error) {
+      console.error("Failed to fetch profile data:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [server, user]);
+
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
   
   if (!user) {
     return null;
@@ -126,7 +126,10 @@ export default function ProfileScreen() {
         )}
       </ScrollView>
       {showSettings && (
-        <SettingsModal onClose={() => setShowSettings(false)} />
+        <SettingsModal
+          onClose={() => setShowSettings(false)}
+          onFavoritesUpdated={fetchProfileData}
+        />
       )}
     </SafeAreaView>
   );

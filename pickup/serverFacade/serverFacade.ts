@@ -15,6 +15,7 @@ export default interface ServerFacade {
     getGamesWithDetails(filters?: GameFilter): Promise<GameWithDetails[]>;
     getSport(sportId: number): Promise<Sport>;
     getGamePlayerCount(gameId: number): Promise<number>;
+    getAllSports(): Promise<Sport[]>;
     getPossibleSports(): Promise<string[]>;
     getPossibleSkillLevels(): Promise<string[]>;
 
@@ -35,6 +36,7 @@ export default interface ServerFacade {
     leaveGame(gameId: number): Promise<void>;
 
     getFavouriteSports(userId: number): Promise<Sport[]>;
+    updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]>;
     getUserAchievements(userId: number): Promise<Achievement[]>;
     getUserGames(userId: number): Promise<GameWithDetails[]>;
     createGame(gameData: {

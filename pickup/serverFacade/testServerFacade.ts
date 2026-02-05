@@ -291,6 +291,14 @@ export default class TestServerFacade implements ServerFacade {
         });
     }
 
+    async getAllSports(): Promise<Sport[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(Array.from(this.sports.values()));
+            }, 500);
+        });
+    }
+
     async getPossibleSports(): Promise<string[]> {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -475,6 +483,27 @@ export default class TestServerFacade implements ServerFacade {
                 } else {
                     resolve([]);
                 }
+            }, 500);
+        });
+    }
+
+    async updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const user = this.users.get(userId);
+                if (!user) {
+                    reject(new Error("User not found"));
+                    return;
+                }
+
+                const validIds = sportIds.filter((id) => this.sports.has(id));
+                this.userFavoriteSports.set(userId, new Set(validIds));
+
+                const updatedSports = validIds
+                    .map((id) => this.sports.get(id))
+                    .filter((sport): sport is Sport => sport !== undefined);
+
+                resolve(updatedSports);
             }, 500);
         });
     }
