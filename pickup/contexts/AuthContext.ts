@@ -5,6 +5,8 @@ type AuthContextType = {
   user: User | null;
   token: string | null;
   loading: boolean;
+  needsFavoriteSports: boolean;
+  setNeedsFavoriteSports: (value: boolean) => Promise<void>;
   signup: (
     email: string,
     password: string,

@@ -9,7 +9,7 @@ import React, { useEffect } from "react";
 import { getServerFacade } from "@/serverFacade/serverFactory";
 
 function RootLayoutNav() {
-  const { user, loading } = useAuth();
+  const { user, loading, needsFavoriteSports } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -17,13 +17,18 @@ function RootLayoutNav() {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
+    } else if (user && needsFavoriteSports && !inOnboardingGroup) {
+      router.replace('/(onboarding)/favoriteSports');
+    } else if (user && !needsFavoriteSports && inAuthGroup) {
+      router.replace('/(tabs)');
+    } else if (user && !needsFavoriteSports && inOnboardingGroup) {
       router.replace('/(tabs)');
     }
-  }, [user, loading, segments, router]);
+  }, [user, loading, needsFavoriteSports, segments, router]);
 
   if (loading) {
     return (
@@ -36,6 +41,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)/login" />
+      <Stack.Screen name="(onboarding)/favoriteSports" />
       <Stack.Screen name="(tabs)" />
     </Stack>
   );

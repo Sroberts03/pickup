@@ -12,12 +12,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsFavoriteSports, setNeedsFavoriteSportsState] = useState(false);
+
+  const updateNeedsFavoriteSports = async (value: boolean) => {
+    if (value) {
+      await SecureStore.setItemAsync('needsFavoriteSports', 'true');
+    } else {
+      await SecureStore.deleteItemAsync('needsFavoriteSports');
+    }
+    setNeedsFavoriteSportsState(value);
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         // First try to restore token from storage
         const storedToken = await SecureStore.getItemAsync('authToken');
+        const storedNeedsFavorites = await SecureStore.getItemAsync('needsFavoriteSports');
+        setNeedsFavoriteSportsState(storedNeedsFavorites === 'true');
 
         if (storedToken) {
           // In a real app, we'd validate the token with the server here.
@@ -59,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.setItemAsync('authToken', result.token);
     setToken(result.token);
     setUser(result.user);
+    await updateNeedsFavoriteSports(true);
   };
 
   const login = async (email: string, password: string) => {
@@ -67,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.setItemAsync('authToken', result.token);
     setToken(result.token);
     setUser(result.user);
+    await updateNeedsFavoriteSports(false);
   };
 
   const logout = async () => {
@@ -77,8 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     await SecureStore.deleteItemAsync('authToken');
+    await SecureStore.deleteItemAsync('needsFavoriteSports');
     setUser(null);
     setToken(null);
+    setNeedsFavoriteSportsState(false);
   };
 
   const updateUser = async (userData: Partial<{
@@ -97,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, signup, login, logout, loading, updateUser }}>
+    <AuthContext.Provider value={{ user, token, signup, login, logout, loading, updateUser, needsFavoriteSports, setNeedsFavoriteSports: updateNeedsFavoriteSports }}>
       {children}
     </AuthContext.Provider>
   );
