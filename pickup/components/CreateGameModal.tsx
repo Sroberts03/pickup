@@ -19,7 +19,7 @@ import User from "@/objects/User";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 interface CreateGameModalProps {
   visible: boolean;
@@ -31,12 +31,17 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
   const { colors } = useTheme();
   const server = useServer();
   const user = useAuth().user as User;
+  const GOOGLE_PLACES_KEY = Platform.select({
+    ios: process.env.EXPO_PUBLIC_IOS_GOOGLE_MAPS_API_KEY,
+    android: process.env.EXPO_PUBLIC_ANDROID_GOOGLE_MAPS_API_KEY,
+  });
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date(Date.now() + 2 * 60 * 60 * 1000)); // 2 hours from now
   const [address, setAddress] = useState("");
+  const [placeId, setPlaceId] = useState("");
   const [lat, setLat] = useState<Float | null>(null);
   const [lng, setLng] = useState<Float | null>(null);
   const [maxPlayers, setMaxPlayers] = useState("");
@@ -94,21 +99,21 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
       // Find sport ID by name
       const sportIndex = sports.indexOf(selectedSport);
       const sportId = sportIndex !== -1 ? sportIndex + 1 : 1; // Default to first sport
-
-      // Create a default location (in a real app, this would be based on the address)
-      const locationId = 1; // Default location
-
+      
       await server.createGame({
         name: name.trim(),
         description: description.trim(),
         sportId,
         startTime,
         endTime,
-        locationId,
         maxPlayers: Number(maxPlayers),
         skillLevel: skillLevel as any,
         isPrivate,
-        rules: rules.trim()
+        rules: rules.trim(),
+        address,
+        placeId,
+        lat,
+        lng,
       });
 
       Alert.alert("Success", "Game created successfully!", [
@@ -136,6 +141,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
     setAddress("");
     setMaxPlayers("");
     setRules("");
+    setLat(null);
+    setLng(null);
+    setSelectedSport(sports.length > 0 ? sports[0] : "");
+    setSkillLevel(skillLevels.length > 0 ? skillLevels[0] : "");
     setIsPrivate(false);
   };
 
@@ -218,23 +227,26 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
             <Text style={[styles.label, { color: colors.text }]}>Address</Text>
             <GooglePlacesAutocomplete
               placeholder='Search for a court or park'
+              onFail={(error) => console.error(error)}
               onPress={(data, details = null) => {
                 setAddress(data.description);
+                setPlaceId(data.place_id);
                 if (details) {
                   setLat(details.geometry.location.lat as Float);
                   setLng(details.geometry.location.lng as Float);
                 }
               }}
               query={{
-                key: 'YOUR_GOOGLE_API_KEY',
+                key: GOOGLE_PLACES_KEY,
                 language: 'en',
                 types: 'geocode',
               }}
               fetchDetails={true}
+              disableScroll={true}
               styles={{
+                container: styles.autocompleteContainer,
+                listView: styles.listView,
                 textInput: [styles.input, { backgroundColor: '#E5E5E5', color: '#333' }],
-                container: { flex: 0 }, // Prevents the search bar from taking over the screen
-                listView: { backgroundColor: 'white', zIndex: 1000 }, // Ensures list stays on top
               }}
             />
           </View>
@@ -242,6 +254,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.mapPlaceholder}>
             {lat && lng ? (
               <MapView
+                provider={PROVIDER_GOOGLE}
                 style={StyleSheet.absoluteFillObject}
                 region={{
                   latitude: lat,
@@ -255,10 +268,6 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
             ) : (
               <Text style={[styles.mapText, { color: '#666' }]}>Select an address to see the map</Text>
             )}
-          </View>
-
-          <View style={[styles.mapPlaceholder, { backgroundColor: '#E5E5E5' }]}>
-            <Text style={[styles.mapText, { color: '#666' }]}>MAP</Text>
           </View>
 
           <View style={styles.row}>
@@ -520,7 +529,8 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   mapPlaceholder: {
-    height: 120,
+    height: 300,
+    width: '100%',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -656,6 +666,19 @@ const styles = StyleSheet.create({
   pickerOptionText: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  autocompleteContainer: {
+    flex: 0,
+    flexGrow: 1,
+    zIndex: 1000,
+    width: '100%',
+  },
+  listView: {
+    position: 'absolute',
+    top: 45,
+    backgroundColor: 'white',
+    zIndex: 2000,
+    elevation: 5,
   },
 });
 

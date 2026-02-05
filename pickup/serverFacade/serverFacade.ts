@@ -3,6 +3,7 @@ import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
 import Location from "@/objects/Location";
+import { Float } from "react-native/Libraries/Types/CodegenTypes";
 
 export default interface ServerFacade {
     getCurrentUser(): Promise<{ token: string, user: User } | null>;
@@ -42,11 +43,14 @@ export default interface ServerFacade {
         sportId: number;
         startTime: Date;
         endTime: Date;
-        locationId: number;
         maxPlayers: number;
         skillLevel: string;
         isPrivate: boolean;
         rules: string;
+        address: string;
+        placeId: string;
+        lat: Float | null;
+        lng: Float | null;
     }): Promise<Game>;
 
     getLocationById(locationId: number): Promise<Location>;

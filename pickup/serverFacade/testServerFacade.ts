@@ -6,6 +6,7 @@ import { Game, GameStatus, SkillLevel, GameFilter, GameWithDetails } from "@/obj
 import Achievement from "@/objects/Achievement";
 import Location from "@/objects/Location";
 import Sport from "@/objects/Sport";
+import { Float } from "react-native/Libraries/Types/CodegenTypes";
 
 
 
@@ -491,11 +492,14 @@ export default class TestServerFacade implements ServerFacade {
         sportId: number;
         startTime: Date;
         endTime: Date;
-        locationId: number;
         maxPlayers: number;
         skillLevel: string;
         isPrivate: boolean;
         rules: string;
+        address: string;
+        placeId: string;
+        lat: Float | null;
+        lng: Float | null;
     }): Promise<Game> {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -503,6 +507,19 @@ export default class TestServerFacade implements ServerFacade {
                     reject(new Error("User not logged in"));
                     return;
                 }
+                if (gameData.lat === null || gameData.lng === null) {
+                    reject(new Error("Invalid location data"));
+                    return;
+                }
+
+                const locationId = this.locations.size + 1;
+                const newLocation = new Location(
+                    locationId,
+                    gameData.placeId,
+                    gameData.address,
+                    gameData.lat,
+                    gameData.lng
+                );
 
                 const newGameId = this.games.size + 1;
                 const newGame = new Game(
@@ -513,7 +530,7 @@ export default class TestServerFacade implements ServerFacade {
                     this.currentUserId,
                     gameData.startTime,
                     gameData.endTime,
-                    gameData.locationId,
+                    locationId,
                     gameData.maxPlayers,
                     GameStatus.Scheduled,
                     gameData.skillLevel as SkillLevel,
@@ -522,6 +539,7 @@ export default class TestServerFacade implements ServerFacade {
                 );
 
                 this.games.set(newGameId, newGame);
+                this.locations.set(locationId, newLocation);
                 
                 // Auto-join the creator to the game
                 if (!this.userGames.has(this.currentUserId)) {
