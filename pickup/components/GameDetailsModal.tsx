@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert, ActionSheetIOS, Platform, Linking, Clipboard } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
@@ -82,9 +82,61 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
     const getAvatarUrl = (seed: string) =>
         `https://api.dicebear.com/7.x/fun-emoji/png?seed=${encodeURIComponent(seed)}`;
 
+    const openMapWithProvider = (provider: "apple" | "google") => {
+        if (!location) return;
+        const label = encodeURIComponent(location.address);
+        const latLng = `${location.lat},${location.lng}`;
+
+        const url = provider === "apple"
+            ? `http://maps.apple.com/?ll=${latLng}&q=${label}`
+            : `https://www.google.com/maps/search/?api=1&query=${latLng}`;
+
+        Linking.openURL(url).catch(() => {
+            Alert.alert("Error", "Unable to open maps.");
+        });
+    };
+
+    const handleOpenAddress = () => {
+        if (!location) return;
+
+        if (Platform.OS === "ios") {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    message: "Open Address",
+                    options: ["Open in Apple Maps", "Open in Google Maps", "Copy Address", "Cancel"],
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 0) openMapWithProvider("apple");
+                    if (buttonIndex === 1) openMapWithProvider("google");
+                    if (buttonIndex === 2) {
+                        Clipboard.setString(location.address);
+                        Alert.alert("Copied", "Address copied to clipboard.");
+                    }
+                    if (buttonIndex === 3) return;
+                }
+            );
+            return;
+        }
+
+        Alert.alert(
+            "Open Address",
+            "Choose a maps app",
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "Google Maps", onPress: () => openMapWithProvider("google") },
+                { text: "Copy Address", onPress: () => {
+                    Clipboard.setString(location.address);
+                    Alert.alert("Copied", "Address copied to clipboard.");
+                } 
+                },
+            ]
+        );
+    };
+
     if (!game) return null;
 
     function getSportImage(sportName: string) {
+      
         const key = sportName.toLowerCase();
         if (key.includes("basketball")) return require("../assets/images/basketball.png");
         if (key.includes("soccer")) return require("../assets/images/soccer.png");
@@ -128,7 +180,9 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
                             </View>
                         </View>
 
-                        <Text style={[styles.locationText, { color: colors.text }]}>Location: {location?.address}</Text>
+                        <TouchableOpacity onPress={handleOpenAddress} disabled={!location}>
+                            <Text style={[styles.locationText, { color: colors.text }]}>Location: {location?.address}</Text>
+                        </TouchableOpacity>
                         <View style={styles.mapContainer}>
                             {location && (
                             <MapView
