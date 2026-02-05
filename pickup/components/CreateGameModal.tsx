@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Modal, 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  TextInput, 
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
   Switch,
   Alert,
   Platform
@@ -17,6 +17,9 @@ import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
 import User from "@/objects/User";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Float } from "react-native/Libraries/Types/CodegenTypes";
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import MapView, { Marker } from "react-native-maps";
 
 interface CreateGameModalProps {
   visible: boolean;
@@ -28,12 +31,14 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
   const { colors } = useTheme();
   const server = useServer();
   const user = useAuth().user as User;
-  
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date(Date.now() + 2 * 60 * 60 * 1000)); // 2 hours from now
   const [address, setAddress] = useState("");
+  const [lat, setLat] = useState<Float | null>(null);
+  const [lng, setLng] = useState<Float | null>(null);
   const [maxPlayers, setMaxPlayers] = useState("");
   const [skillLevel, setSkillLevel] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
@@ -89,7 +94,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
       // Find sport ID by name
       const sportIndex = sports.indexOf(selectedSport);
       const sportId = sportIndex !== -1 ? sportIndex + 1 : 1; // Default to first sport
-      
+
       // Create a default location (in a real app, this would be based on the address)
       const locationId = 1; // Default location
 
@@ -107,11 +112,13 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
       });
 
       Alert.alert("Success", "Game created successfully!", [
-        { text: "OK", onPress: () => {
-          onGameCreated();
-          onClose();
-          resetForm();
-        }}
+        {
+          text: "OK", onPress: () => {
+            onGameCreated();
+            onClose();
+            resetForm();
+          }
+        }
       ]);
     } catch (error) {
       console.error("Failed to create game:", error);
@@ -159,7 +166,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.placeholder} />
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Name</Text>
             <TextInput
@@ -185,7 +192,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Start Time</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowStartTimePicker(true)}
             >
@@ -197,7 +204,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>End Time</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowEndTimePicker(true)}
             >
@@ -209,13 +216,45 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Address</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: '#E5E5E5', color: '#333' }]}
-              value={address}
-              onChangeText={setAddress}
-              placeholder="Enter address"
-              placeholderTextColor="#999"
+            <GooglePlacesAutocomplete
+              placeholder='Search for a court or park'
+              onPress={(data, details = null) => {
+                setAddress(data.description);
+                if (details) {
+                  setLat(details.geometry.location.lat as Float);
+                  setLng(details.geometry.location.lng as Float);
+                }
+              }}
+              query={{
+                key: 'YOUR_GOOGLE_API_KEY',
+                language: 'en',
+                types: 'geocode',
+              }}
+              fetchDetails={true}
+              styles={{
+                textInput: [styles.input, { backgroundColor: '#E5E5E5', color: '#333' }],
+                container: { flex: 0 }, // Prevents the search bar from taking over the screen
+                listView: { backgroundColor: 'white', zIndex: 1000 }, // Ensures list stays on top
+              }}
             />
+          </View>
+
+          <View style={styles.mapPlaceholder}>
+            {lat && lng ? (
+              <MapView
+                style={StyleSheet.absoluteFillObject}
+                region={{
+                  latitude: lat,
+                  longitude: lng,
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                }}
+              >
+                <Marker coordinate={{ latitude: lat, longitude: lng }} />
+              </MapView>
+            ) : (
+              <Text style={[styles.mapText, { color: '#666' }]}>Select an address to see the map</Text>
+            )}
           </View>
 
           <View style={[styles.mapPlaceholder, { backgroundColor: '#E5E5E5' }]}>
@@ -234,10 +273,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                 keyboardType="numeric"
               />
             </View>
-            
+
             <View style={[styles.inputGroup, { flex: 2, marginLeft: 8 }]}>
               <Text style={[styles.label, { color: colors.text }]}>Skill Level</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.input, { backgroundColor: '#E5E5E5' }]}
                 onPress={() => setShowSkillLevelPicker(true)}
               >
@@ -273,7 +312,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
 
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Sport</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowSportPicker(true)}
             >
@@ -306,14 +345,14 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                 themeVariant={colors.background === '#000000' ? 'dark' : 'light'}
               />
               <View style={styles.datePickerButtons}>
-                <TouchableOpacity 
-                  style={[styles.datePickerButton, styles.cancelButton]} 
+                <TouchableOpacity
+                  style={[styles.datePickerButton, styles.cancelButton]}
                   onPress={() => setShowStartTimePicker(false)}
                 >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.datePickerButton, styles.confirmButton]} 
+                <TouchableOpacity
+                  style={[styles.datePickerButton, styles.confirmButton]}
                   onPress={() => setShowStartTimePicker(false)}
                 >
                   <Text style={styles.confirmButtonText}>Done</Text>
@@ -337,14 +376,14 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                 themeVariant={colors.background === '#000000' ? 'dark' : 'light'}
               />
               <View style={styles.datePickerButtons}>
-                <TouchableOpacity 
-                  style={[styles.datePickerButton, styles.cancelButton]} 
+                <TouchableOpacity
+                  style={[styles.datePickerButton, styles.cancelButton]}
                   onPress={() => setShowEndTimePicker(false)}
                 >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.datePickerButton, styles.confirmButton]} 
+                <TouchableOpacity
+                  style={[styles.datePickerButton, styles.confirmButton]}
                   onPress={() => setShowEndTimePicker(false)}
                 >
                   <Text style={styles.confirmButtonText}>Done</Text>
@@ -381,8 +420,8 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <TouchableOpacity 
-                style={[styles.datePickerButton, styles.cancelButton]} 
+              <TouchableOpacity
+                style={[styles.datePickerButton, styles.cancelButton]}
                 onPress={() => setShowSportPicker(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -418,8 +457,8 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <TouchableOpacity 
-                style={[styles.datePickerButton, styles.cancelButton]} 
+              <TouchableOpacity
+                style={[styles.datePickerButton, styles.cancelButton]}
                 onPress={() => setShowSkillLevelPicker(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>

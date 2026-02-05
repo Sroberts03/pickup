@@ -276,7 +276,7 @@ export default class TestServerFacade implements ServerFacade {
                 const allGames = Array.from(this.games.values());
 
                 const filteredGames = allGames.filter(game => {
-                    const creator = this.users.get(game.createrId);
+                    const creator = this.users.get(game.creatorId);
                     const creatorName = creator ? `${creator.firstName} ${creator.lastName}`.toLowerCase() : "";
 
                     return game.name.toLowerCase().includes(lowerQuery) ||
