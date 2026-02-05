@@ -8,6 +8,19 @@ import Location from "@/objects/Location";
 import Sport from "@/objects/Sport";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 
+const toRadians = (value: number) => (value * Math.PI) / 180;
+
+const getDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const earthRadiusKm = 6371;
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return earthRadiusKm * c;
+};
 
 
 export default class TestServerFacade implements ServerFacade {
@@ -184,6 +197,13 @@ export default class TestServerFacade implements ServerFacade {
         return new Promise((resolve) => {
             setTimeout(() => {
                 let games = Array.from(this.games.values());
+                const currentUserId = this.currentUserId;
+                if (currentUserId !== null) {
+                    const joinedGames = this.userGames.get(currentUserId);
+                    if (joinedGames && joinedGames.size > 0) {
+                        games = games.filter(game => !joinedGames.has(game.id));
+                    }
+                }
                 if (!filters) {
                     resolve(games);
                     return;
@@ -202,6 +222,23 @@ export default class TestServerFacade implements ServerFacade {
                 }
                 if (filters.maxPlayers) {
                     games = games.filter(game => game.maxPlayers === filters.maxPlayers);
+                }
+                if (
+                    filters.latitude !== undefined &&
+                    filters.longitude !== undefined &&
+                    filters.radiusKm !== undefined
+                ) {
+                    games = games.filter(game => {
+                        const location = this.locations.get(game.locationId);
+                        if (!location) return false;
+                        const distance = getDistanceKm(
+                            filters.latitude as number,
+                            filters.longitude as number,
+                            Number(location.lat),
+                            Number(location.lng)
+                        );
+                        return distance <= (filters.radiusKm as number);
+                    });
                 }
 
                 resolve(games);

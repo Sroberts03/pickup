@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Platform } from "react-native";
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { GameFilter } from "@/objects/Game";
@@ -20,7 +20,6 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
 
     const [sport, setSport] = useState<string[]>(currentFilters?.sport || []);
     const [skillLevel, setSkillLevel] = useState<string[]>(currentFilters?.skillLevel || []);
-    const [location, setLocation] = useState<string | undefined>(currentFilters?.location);
     const [maxPlayers, setMaxPlayers] = useState<string | undefined>(currentFilters?.maxPlayers?.toString());
 
     const [sports, setSports] = useState<string[]>([]);
@@ -40,7 +39,6 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
         if (visible) {
             setSport(currentFilters?.sport || []);
             setSkillLevel(currentFilters?.skillLevel || []);
-            setLocation(currentFilters?.location);
             setMaxPlayers(currentFilters?.maxPlayers?.toString());
         }
     }, [visible, currentFilters]);
@@ -49,7 +47,6 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
         const filters: GameFilter = {
             sport,
             skillLevel,
-            location,
             maxPlayers: maxPlayers ? parseInt(maxPlayers) : undefined
         };
         // Clean up undefined values
@@ -64,7 +61,6 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
     const handleClear = () => {
         setSport([]);
         setSkillLevel([]);
-        setLocation(undefined);
         setMaxPlayers(undefined);
         onApply({} as GameFilter); // modify this based on how clear should be handled
         onClose();
@@ -144,15 +140,6 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                                 </TouchableOpacity>
                             ))}
                         </View>
-
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Location</Text>
-                        <TextInput
-                            style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                            placeholder="Enter location address"
-                            placeholderTextColor={colors.text + '80'}
-                            value={location}
-                            onChangeText={setLocation}
-                        />
 
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Max Players</Text>
                         <TextInput

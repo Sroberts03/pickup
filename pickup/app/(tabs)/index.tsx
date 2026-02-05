@@ -10,6 +10,7 @@ import FilterModal from "@/components/FilterModal";
 import SearchModal from "@/components/SearchModal";
 import GameDetailsModal from "@/components/GameDetailsModal";
 import CreateGameModal from "@/components/CreateGameModal";
+import * as Location from "expo-location";
 
 function getSportImage(sportName: string): ImageSourcePropType {
   const key = sportName.toLowerCase();
@@ -31,6 +32,7 @@ export default function Index() {
   const [isCreateGameVisible, setIsCreateGameVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handleApplyFilters = (newFilters: GameFilter) => {
     setFilters(newFilters);
@@ -39,19 +41,58 @@ export default function Index() {
   const fetchGames = useCallback(async () => {
       setIsLoading(true);
       try {
-        const gamesList = await server.getGamesWithDetails(filters || undefined);
+        const locationFilters = userLocation
+          ? {
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+              radiusKm: 25,
+            }
+          : {};
+        const gamesList = await server.getGamesWithDetails({
+          ...(filters || {}),
+          ...locationFilters,
+        });
         setGames(gamesList);
       } catch (error) {
         console.error("Failed to fetch games:", error);
       } finally {
         setIsLoading(false);
       }
-  }, [server, filters]);
+  }, [server, filters, userLocation]);
+
+  const requestAndLoadLocation = useCallback(async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.warn("Location permission denied");
+        return;
+      }
+
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+      setUserLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+    } catch (error) {
+      console.error("Location request failed:", error);
+    }
+  }, []);
   
 
   useEffect(() => {
     fetchGames();
   }, [fetchGames]);
+
+  useEffect(() => {
+    requestAndLoadLocation();
+  }, [requestAndLoadLocation]);
+
+  useEffect(() => {
+    if (!userLocation) return;
+    fetchGames();
+  }, [userLocation, fetchGames]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -73,6 +114,10 @@ export default function Index() {
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : games.length === 0 ? (
+          <View style={styles.emptyStateContainer}>
+            <Text style={[styles.emptyStateText, { color: colors.text }]}>No games in your area.</Text>
           </View>
         ) : (
           <View style={styles.gamesContainer}>
@@ -246,6 +291,15 @@ const styles = StyleSheet.create({
     paddingVertical: 50,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyStateContainer: {
+    paddingVertical: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   fab: {
     position: 'absolute',

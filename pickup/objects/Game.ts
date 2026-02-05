@@ -66,6 +66,9 @@ export interface GameFilter {
     time?: string;
     skillLevel?: string[];
     maxPlayers?: number;
+    latitude?: number;
+    longitude?: number;
+    radiusKm?: number;
 }
 
 export interface GameWithDetails extends Game {
