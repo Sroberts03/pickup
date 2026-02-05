@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Switch, Image } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from "react-native";
 import { useRouter } from 'expo-router';
 import logo from '@/assets/images/pickup.png';
 
