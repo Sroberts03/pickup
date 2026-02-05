@@ -188,7 +188,8 @@ export default class TestServerFacade implements ServerFacade {
     async getGames(filters?: GameFilter): Promise<Game[]> {
         return new Promise((resolve) => {
             setTimeout(() => {
-                let games = Array.from(this.games.values());
+                const now = new Date();
+                let games = Array.from(this.games.values()).filter(game => game.endTime > now);
                 const currentUserId = this.currentUserId;
                 if (currentUserId !== null) {
                     const joinedGames = this.userGames.get(currentUserId);
