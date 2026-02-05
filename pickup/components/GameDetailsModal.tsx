@@ -4,7 +4,9 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
 import { GameWithDetails } from "@/objects/Game";
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import User from "@/objects/User";
+import Location from "@/objects/Location";
 
 interface GameDetailsModalProps {
     visible: boolean;
@@ -20,22 +22,24 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
     const [hasJoined, setHasJoined] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [location, setLocation] = useState<Location | null>(null);
 
     useEffect(() => {
         const fetchDetails = async () => {
             if (game) {
                 setIsLoading(true);
                 try {
-                    const [fetchedCreator, fetchedPlayers, currentUser] = await Promise.all([
-                        server.getUser(game.createrId),
+                    const [fetchedCreator, fetchedPlayers, currentUser, location] = await Promise.all([
+                        server.getUser(game.creatorId),
                         server.getGamePlayers(game.id),
-                        server.getCurrentUser()
+                        server.getCurrentUser(),
+                        server.getLocationById(game.locationId)
                     ]);
                     setCreator(fetchedCreator);
                     setPlayers(fetchedPlayers);
-
+                    setLocation(location);
                     if (currentUser) {
-                        setHasJoined(fetchedPlayers.some(p => p.id === currentUser.user.id));
+                        setHasJoined(fetchedPlayers.some((p: User) => p.id === currentUser.user.id));
                     }
                 } catch (error) {
                     console.error("Failed to fetch game details:", error);
@@ -57,7 +61,7 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
             if (hasJoined) {
                 await server.leaveGame(game.id);
                 setHasJoined(false);
-                setPlayers(prev => prev.filter(p => !p.id)); // Optimistic update: ideally we filter by ID but we don't have current user ID handy without refetching or storing it 
+                setPlayers(prev => prev.filter(p => p.id !== currentUser.user.id)); // Optimistic update: ideally we filter by ID but we don't have current user ID handy without refetching or storing it 
                 // Let's refetch to be safe and simple
                 const fetchedPlayers = await server.getGamePlayers(game.id);
                 setPlayers(fetchedPlayers);
@@ -124,10 +128,22 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
                             </View>
                         </View>
 
+                        <Text style={[styles.locationText, { color: colors.text }]}>Location: {location?.address}</Text>
                         <View style={styles.mapContainer}>
-                            <Text style={{ color: '#888' }}>MAP</Text>
+                            {location && (
+                            <MapView
+                                provider={PROVIDER_GOOGLE}
+                                style={StyleSheet.absoluteFillObject}
+                                initialRegion={{
+                                    latitude: location.lat,
+                                    longitude: location.lng,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                }}
+                            >
+                            </MapView>
+                            )}
                         </View>
-                        <Text style={[styles.locationText, { color: colors.text }]}>Location ID: {game.locationId}</Text>
 
                         <View style={styles.section}>
                             <View style={styles.rulesContainer}>
@@ -249,12 +265,12 @@ const styles = StyleSheet.create({
     },
     mapContainer: {
         width: '100%',
-        height: 150,
-        backgroundColor: '#e0e0e0',
+        height: 200,
         borderRadius: 15,
+        overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 20,
     },
     locationText: {
         fontSize: 14,
@@ -288,7 +304,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         height: 40,
         marginBottom: 5,
-        width: 80, // Ensure space for overlapping
+        width: 80, 
     },
     playerCircle: {
         width: 35,

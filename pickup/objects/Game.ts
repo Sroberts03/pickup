@@ -17,7 +17,7 @@ export class Game {
     name: string
     description: string
     sportId: number
-    createrId: number
+    creatorId: number
     startTime: Date
     endTime: Date
     locationId: number
@@ -32,7 +32,7 @@ export class Game {
         name: string,
         description: string,
         sportId: number,
-        createrId: number,
+        creatorId: number,
         startTime: Date,
         endTime: Date,
         locationId: number,
@@ -46,7 +46,7 @@ export class Game {
         this.name = name
         this.description = description
         this.sportId = sportId
-        this.createrId = createrId
+        this.creatorId = creatorId
         this.startTime = startTime
         this.endTime = endTime
         this.locationId = locationId

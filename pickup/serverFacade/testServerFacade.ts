@@ -533,4 +533,17 @@ export default class TestServerFacade implements ServerFacade {
             }, 500);
         });
     }
+
+    async getLocationById(locationId: number): Promise<Location> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const location = this.locations.get(locationId);
+                if (location) {
+                    resolve(location);
+                } else {
+                    reject(new Error("Location not found"));
+                }
+            }, 500);
+        });
+    }
 }

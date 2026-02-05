@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "iOS_GOOGLE_MAPS_API_KEY"
+      },
+      "bundleIdentifier": "com.samroberts.pickup"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +23,14 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+          "googleMaps": {
+            "apiKey": "ANDROID_GOOGLE_MAPS_API_KEY"
+          }
+        },
+      "package": "com.samroberts.pickup",
+      "versionCode": 1
     },
     "web": {
       "output": "static",

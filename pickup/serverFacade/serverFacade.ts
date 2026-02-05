@@ -2,6 +2,7 @@ import Achievement from "@/objects/Achievement";
 import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
+import Location from "@/objects/Location";
 
 export default interface ServerFacade {
     getCurrentUser(): Promise<{ token: string, user: User } | null>;
@@ -47,4 +48,6 @@ export default interface ServerFacade {
         isPrivate: boolean;
         rules: string;
     }): Promise<Game>;
+
+    getLocationById(locationId: number): Promise<Location>;
 }
