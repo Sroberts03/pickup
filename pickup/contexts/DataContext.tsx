@@ -8,7 +8,6 @@ import Sport from '@/objects/Sport';
 interface UserStats {
     gamesPlayed: number;
     gamesOrganized: number;
-    joinedAt: Date;
 }
 
 interface DataContextType {

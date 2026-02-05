@@ -37,7 +37,7 @@ export default interface ServerFacade {
     getFavouriteSports(userId: number): Promise<Sport[]>;
     updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]>;
     getUserGames(userId: number): Promise<GameWithDetails[]>;
-    getUserStats(userId: number): Promise<{ gamesPlayed: number; gamesOrganized: number; joinedAt: Date }>;
+    getUserStats(userId: number): Promise<{ gamesPlayed: number; gamesOrganized: number }>;
     createGame(gameData: {
         name: string;
         description: string;

@@ -92,10 +92,10 @@ export default function ProfileScreen() {
                     </View>
                     <View style={[styles.statItem, styles.statBorder]}>
                       <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesOrganized}</Text>
-                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Organized</Text>
+                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Organized</Text>
                     </View>
                     <View style={styles.statItem}>
-                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.joinedAt.getFullYear()}</Text>
+                      <Text style={[styles.statValue, { color: colors.text }]}>{user.joinedYear}</Text>
                       <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Member Since</Text>
                     </View>
                  </View>

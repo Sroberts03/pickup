@@ -4,7 +4,7 @@ export default class User {
     lastName: string;
     email: string;
     isPublic: boolean;
-    joinedAt: Date;
+    joinedYear: number;
 
     constructor(
         id: number,
@@ -12,13 +12,13 @@ export default class User {
         lastName: string,
         email: string,
         isPublic: boolean,
-        joinedAt: Date = new Date()
+        joinedYear: number = new Date().getFullYear()
     ) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.isPublic = isPublic;
-        this.joinedAt = joinedAt;
+        this.joinedYear = joinedYear;
     }
 }
