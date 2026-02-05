@@ -6,7 +6,6 @@ import User from "@/objects/User";
 import { useServer } from "@/contexts/ServerContext";
 import { useCallback, useEffect, useState } from "react";
 import Sport from "@/objects/Sport";
-import Achievement from "@/objects/Achievement";
 import { Ionicons } from "@expo/vector-icons";
 import SettingsModal from "@/components/SettingsModal";
 
@@ -16,7 +15,6 @@ export default function ProfileScreen() {
   const server = useServer();
   const [loading, setLoading] = useState(true);
   const [favouriteSports, setFavouriteSports] = useState<Sport[]>([]);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
@@ -24,12 +22,8 @@ export default function ProfileScreen() {
     if (!user) return;
     setLoading(true);
     try {
-      const [sports, userAchievements] = await Promise.all([
-        server.getFavouriteSports(user.id),
-        server.getUserAchievements(user.id)
-      ]);
+      const sports = await server.getFavouriteSports(user.id);
       setFavouriteSports(sports);
-      setAchievements(userAchievements);
       setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
     } catch (error) {
       console.error("Failed to fetch profile data:", error);
@@ -99,27 +93,6 @@ export default function ProfileScreen() {
                     <Text style={styles.pillText}>{sport.name}</Text>
                   </View>
                 ))}
-              </View>
-            </View>
-
-            {/* Achievements */}
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Achievements</Text>
-              <View style={styles.achievementsContainer}>
-                {achievements.map((achievement) => (
-                  <View key={achievement.id} style={styles.achievementCircle}>
-                    {/* Placeholder for achievement icon/image */}
-                    {/* If iconUrl exists we would use it, but for design consistency with wireframe: */}
-                    {achievement.iconUrl ?
-                      <Image source={{ uri: achievement.iconUrl }} style={styles.achievementImage} /> :
-                      null
-                    }
-                  </View>
-                ))}
-                {/* Add some placeholders if empty to match design look? No, stick to real data */}
-                {achievements.length === 0 && (
-                  <Text style={{ color: colors.text, opacity: 0.5 }}>No achievements yet</Text>
-                )}
               </View>
             </View>
           </>
@@ -209,23 +182,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#000',
   },
-  achievementsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-    justifyContent: 'flex-start',
-  },
-  achievementCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#D9D9D9',
-    marginRight: 8, // fallback for gap
-    marginBottom: 16,
-  },
-  achievementImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 40,
-  }
 });

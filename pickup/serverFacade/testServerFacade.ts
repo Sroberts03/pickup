@@ -3,7 +3,6 @@ import ServerFacade from "./serverFacade";
 import Group from "@/objects/Group";
 import GroupMessage from "@/objects/GroupMessage";
 import { Game, GameStatus, SkillLevel, GameFilter, GameWithDetails } from "@/objects/Game";
-import Achievement from "@/objects/Achievement";
 import Location from "@/objects/Location";
 import Sport from "@/objects/Sport";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
@@ -32,11 +31,9 @@ export default class TestServerFacade implements ServerFacade {
     sports = new Map<number, Sport>();
     skillLevels = new Map<number, string>();
     games = new Map<number, Game>();
-    achievements = new Map<number, Achievement>();
     locations = new Map<number, Location>();
     userFavoriteSports = new Map<number, Set<number>>();
     userGames = new Map<number, Set<number>>();
-    userAchievements = new Map<number, Set<number>>();
     userGroups = new Map<number, Set<number>>();
 
     constructor() {
@@ -57,9 +54,6 @@ export default class TestServerFacade implements ServerFacade {
 
         this.locations.set(1, new Location(1, "Central Park", "New York, NY", 40.785091, -73.968285));
         this.locations.set(2, new Location(2, "Golden Gate Park", "San Francisco, CA", 37.769420, -122.486214));
-
-        this.achievements.set(1, new Achievement(1, "First Game", "Created your first game", "icon1.png"));
-        this.achievements.set(2, new Achievement(2, "Social Butterfly", "Joined 5 groups", "icon2.png"));
 
         this.games.set(1, new Game(
             1,
@@ -112,9 +106,6 @@ export default class TestServerFacade implements ServerFacade {
 
         this.userGames.set(1, new Set([1]));
         this.userGames.set(2, new Set([2]));
-
-        this.userAchievements.set(1, new Set([1]));
-        this.userAchievements.set(2, new Set([2]));
 
         this.userGroups.set(1, new Set([1, 3]));
         this.userGroups.set(2, new Set([2, 4]));
@@ -504,19 +495,6 @@ export default class TestServerFacade implements ServerFacade {
                     .filter((sport): sport is Sport => sport !== undefined);
 
                 resolve(updatedSports);
-            }, 500);
-        });
-    }
-
-    async getUserAchievements(userId: number): Promise<Achievement[]> {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const achievements = this.userAchievements.get(userId);
-                if (achievements) {
-                    resolve(Array.from(achievements).map(id => this.achievements.get(id)).filter((achievement): achievement is Achievement => achievement !== undefined));
-                } else {
-                    resolve([]);
-                }
             }, 500);
         });
     }

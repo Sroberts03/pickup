@@ -1,4 +1,3 @@
-import Achievement from "@/objects/Achievement";
 import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
@@ -37,7 +36,6 @@ export default interface ServerFacade {
 
     getFavouriteSports(userId: number): Promise<Sport[]>;
     updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]>;
-    getUserAchievements(userId: number): Promise<Achievement[]>;
     getUserGames(userId: number): Promise<GameWithDetails[]>;
     createGame(gameData: {
         name: string;
