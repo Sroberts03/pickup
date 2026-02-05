@@ -75,6 +75,9 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
         }
     };
 
+    const getAvatarUrl = (seed: string) =>
+        `https://api.dicebear.com/7.x/fun-emoji/png?seed=${encodeURIComponent(seed)}`;
+
     if (!game) return null;
 
     function getSportImage(sportName: string) {
@@ -136,17 +139,32 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
 
                             <View style={styles.spotsContainer}>
                                 <View style={styles.playerAvatars}>
-                                    {/* Simple piles of circles */}
                                     {players.slice(0, 3).map((p, i) => (
-                                        <View key={i} style={[styles.playerCircle, { backgroundColor: '#555', left: i * 20, zIndex: 10 - i }]} />
+                                        <View
+                                            key={p.id}
+                                            style={[
+                                                styles.playerCircle,
+                                                { left: i * 20, zIndex: 10 - i, backgroundColor: '#555' }
+                                            ]}
+                                        >
+                                            <Image
+                                                source={{ uri: getAvatarUrl(String(p.id)) }}
+                                                style={styles.avatarImage}
+                                            />
+                                        </View>
                                     ))}
                                 </View>
-                                <Text style={[styles.spotsText, { color: colors.text }]}>{game.maxPlayers - players.length} SPOTS LEFT</Text>
+                                <Text style={[styles.spotsText, { color: colors.text }]}>
+                                    {game.maxPlayers - players.length} SPOTS LEFT
+                                </Text>
 
                                 {creator && (
                                     <View style={styles.creatorContainer}>
                                         <View style={[styles.creatorAvatar, { backgroundColor: '#ccc' }]}>
-                                            {creator.profilePicUrl ? <Image source={{ uri: creator.profilePicUrl }} style={styles.avatarImage} /> : null}
+                                            <Image
+                                                source={{ uri: getAvatarUrl(String(creator.id)) }}
+                                                style={styles.avatarImage}
+                                            />
                                         </View>
                                         <Text style={[styles.creatorName, { color: colors.text }]}>{creator.firstName}</Text>
                                         <Text style={[styles.creatorLabel, { color: colors.text }]}>CREATOR</Text>

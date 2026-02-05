@@ -1,9 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, Switch } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Switch, Image } from "react-native";
 import { useRouter } from 'expo-router';
+import logo from '@/assets/images/pickup.png';
 
 export default function SignupPage() {
     const { signup } = useAuth();
@@ -13,22 +13,8 @@ export default function SignupPage() {
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
     const [isPublic, setIsPublic] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            setProfilePicUrl(result.assets[0].uri);
-        }
-    };
 
     const handleSignup = async () => {
         if (!email || !password || !firstName || !lastName) {
@@ -37,7 +23,8 @@ export default function SignupPage() {
         }
         try {
             setError(null);
-            await signup(email, password, firstName, lastName, profilePicUrl || "", isPublic);
+            await signup(email, password, firstName, lastName, isPublic);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             setError("Signup failed. Please try again.");
         }
@@ -49,14 +36,10 @@ export default function SignupPage() {
             <View>
                 <Text style={[styles.title, { color: colors.text }]}>Sign Up</Text>
             </View>
+            <View style={styles.logoContainer}>
+                <Image source={logo} style={styles.logo} />
+            </View>
             <View style={styles.form}>
-                <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
-                    {profilePicUrl ? (
-                        <Image source={{ uri: profilePicUrl }} style={styles.profileImage} />
-                    ) : (
-                        <Text style={[styles.imagePickerText, { color: colors.text }]}>Pick Profile Picture</Text>
-                    )}
-                </TouchableOpacity>
                 <TextInput 
                     placeholder="First Name" 
                     value={firstName} 
@@ -88,13 +71,18 @@ export default function SignupPage() {
                     placeholderTextColor={colors.text}
                 />
                 <View style={styles.toggleContainer}>
-                    <Text style={[styles.toggleLabel, { color: colors.text }]}>Public Account</Text>
-                    <Switch 
-                        value={isPublic}
-                        onValueChange={setIsPublic}
-                        trackColor={{ false: '#767577', true: '#81c784' }}
-                        thumbColor={isPublic ? '#4caf50' : '#f4f3f4'}
-                    />
+                    <View style={styles.toggleHeader}>
+                        <Text style={[styles.toggleLabel, { color: colors.text }]}>Public Account</Text>
+                        <Switch 
+                            value={isPublic}
+                            onValueChange={setIsPublic}
+                            trackColor={{ false: '#767577', true: '#81c784' }}
+                            thumbColor={isPublic ? '#4caf50' : '#f4f3f4'}
+                        />
+                    </View>
+                    <Text style={[styles.publicAccountText, { color: colors.text }]}>
+                        {isPublic ? "Your profile will be searchable to others." : "Your profile will be private and not searchable."}
+                    </Text>
                 </View>
             </View>
             <View style={styles.loginTextContainer}>
@@ -131,6 +119,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
+  },
+  logoContainer: {
+    alignItems: 'center'
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
   },
   title: {
     fontSize: 24,
@@ -171,15 +167,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginVertical: 8,
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+  toggleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   toggleLabel: {
     fontSize: 16,
@@ -201,6 +200,11 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
+  },
+  publicAccountText: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 16,
   },
   loginTextContainer: {
     flexDirection: 'row',

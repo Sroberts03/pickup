@@ -18,6 +18,7 @@ export default function ProfileScreen() {
   const [favouriteSports, setFavouriteSports] = useState<Sport[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -31,6 +32,7 @@ export default function ProfileScreen() {
         ]);
         setFavouriteSports(sports);
         setAchievements(userAchievements);
+        setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
       } finally {
@@ -70,8 +72,8 @@ export default function ProfileScreen() {
         {/* Profile Info */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            {user.profilePicUrl ? (
-              <Image source={{ uri: user.profilePicUrl }} style={styles.avatar} />
+            {userAvatar ? (
+              <Image source={{ uri: userAvatar }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatarPlaceholder, { backgroundColor: "#E0E0E0" }]}>
                 <Ionicons name="person-outline" size={60} color="#757575" />

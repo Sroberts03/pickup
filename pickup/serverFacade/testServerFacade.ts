@@ -26,8 +26,8 @@ export default class TestServerFacade implements ServerFacade {
     userGroups = new Map<number, Set<number>>();
 
     constructor() {
-        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", true, null));
-        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", true, null));
+        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", true));
+        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", true));
 
         this.groups.set(1, new Group(1, "Morning Joggers", "Group for early morning jogs", false, new Date(), 1, 1));
         this.groups.set(2, new Group(2, "Evening Cyclists", "Group for evening cycling sessions", true, new Date(), 2, null));
@@ -147,14 +147,13 @@ export default class TestServerFacade implements ServerFacade {
         });
     }
 
-    async signup(email: string, password: string, firstName: string, lastName: string, profilePicUrl: string): Promise<{ token: string, user: User }> {
+    async signup(email: string, password: string, firstName: string, lastName: string): Promise<{ token: string, user: User }> {
         const newUser = new User(
             this.users.size + 1,
             email,
             firstName,
             lastName,
-            true,
-            profilePicUrl || null
+            true
         );
         this.users.set(newUser.id, newUser);
         const token = "new-token-" + newUser.id;
@@ -340,7 +339,6 @@ export default class TestServerFacade implements ServerFacade {
         email: string;
         password: string;
         isPublic: boolean;
-        profilePicUrl: string;
     }>): Promise<User> {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -355,7 +353,6 @@ export default class TestServerFacade implements ServerFacade {
                 if (userData.lastName !== undefined) user.lastName = userData.lastName;
                 if (userData.email !== undefined) user.email = userData.email;
                 if (userData.isPublic !== undefined) user.isPublic = userData.isPublic;
-                if (userData.profilePicUrl !== undefined) user.profilePicUrl = userData.profilePicUrl;
                 // Note: In real implementation, password would be hashed
 
                 this.users.set(userId, user);

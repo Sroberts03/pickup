@@ -10,7 +10,7 @@ type AuthContextType = {
     password: string,
     firstName: string,
     lastName: string,
-    profilePicUrl: string
+    isPublic: boolean
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
