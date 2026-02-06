@@ -365,6 +365,15 @@ export default class TestServerFacade implements ServerFacade {
         });
     }
 
+    async reportUser(userId: number, reason: string): Promise<void> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                console.log(`User ${userId} reported for: ${reason}`);
+                resolve();
+            }, 500);
+        });
+    }
+
     async getUser(userId: number): Promise<User | undefined> {
         return new Promise((resolve) => {
             setTimeout(() => {

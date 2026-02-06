@@ -20,6 +20,7 @@ export default interface ServerFacade {
 
     searchGames(query: string): Promise<GameWithDetails[]>;
     searchUsers(query: string): Promise<User[]>;
+    reportUser(userId: number, reason: string): Promise<void>;
 
     getUser(userId: number): Promise<User | undefined>;
     updateUser(userId: number, userData: Partial<{

@@ -5,6 +5,7 @@ import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
 import { GameWithDetails } from "@/objects/Game";
 import User from "@/objects/User";
+import UserDetailsModal from "./UserDetailsModal";
 
 interface SearchModalProps {
     visible: boolean;
@@ -19,6 +20,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onGameSelec
     const [activeTab, setActiveTab] = useState<'Games' | 'Users'>('Games');
     const [gameResults, setGameResults] = useState<GameWithDetails[]>([]);
     const [userResults, setUserResults] = useState<User[]>([]);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -134,7 +136,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onGameSelec
                             ))
                         ) : (
                             userResults.map(user => (
-                                <View key={user.id} style={[styles.resultItem, { borderBottomColor: colors.border }]}>
+                                <TouchableOpacity 
+                                    key={user.id} 
+                                    style={[styles.resultItem, { borderBottomColor: colors.border }]}
+                                    onPress={() => setSelectedUser(user)}
+                                >
                                     <View style={styles.userRow}>
                                         <View style={[styles.avatar, { backgroundColor: colors.card }]}>
                                             {user.profilePicUrl ? (
@@ -149,13 +155,21 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onGameSelec
                                         </View>
                                     </View>
                                     <Feather name="chevron-right" size={20} color={colors.text + '80'} />
-                                </View>
+                                </TouchableOpacity>
                             ))
                         )}
                         {query.length > 0 && ((activeTab === 'Games' && gameResults.length === 0) || (activeTab === 'Users' && userResults.length === 0)) && (
                             <Text style={[styles.noResults, { color: colors.text + '80' }]}>No results found</Text>
                         )}
                     </ScrollView>
+                )}
+                
+                {selectedUser && (
+                    <UserDetailsModal
+                        visible={!!selectedUser}
+                        user={selectedUser}
+                        onClose={() => setSelectedUser(null)}
+                    />
                 )}
             </View>
         </Modal>
