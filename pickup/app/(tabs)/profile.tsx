@@ -88,7 +88,7 @@ export default function ProfileScreen() {
                  <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
                       <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesPlayed}</Text>
-                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Played</Text>
+                      <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Joined</Text>
                     </View>
                     <View style={[styles.statItem, styles.statBorder]}>
                       <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesOrganized}</Text>
