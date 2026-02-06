@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator } from "react-native";
+import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourcePropType, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme, useFocusEffect } from "@react-navigation/native";
@@ -34,6 +34,8 @@ export default function Index() {
   const [isCreateGameVisible, setIsCreateGameVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handleApplyFilters = (newFilters: GameFilter) => {
@@ -82,6 +84,8 @@ export default function Index() {
 
         const gamesList = await server.getGamesWithDetails(finalFilters);
         setGames(gamesList);
+
+        setLastUpdated(new Date());
       } catch (error) {
         console.error("Failed to fetch games:", error);
       } finally {
@@ -126,21 +130,34 @@ export default function Index() {
   }, [userLocation, fetchGames]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView 
+      style={[styles.container, 
+      { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: insets.bottom + tabBarHeight }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={isRefreshing}
+            onRefresh={fetchGames} 
+            tintColor={colors.primary} 
+            colors={[colors.primary]}
+          />
+        }
       >
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.filterButton} onPress={() => setIsFilterVisible(true)}>
             <Feather name="filter" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
+          {lastUpdated && (
+          <Text style={[styles.timestampText, { color: colors.text, opacity: 0.6 }]}>
+            Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+          )}
           <TouchableOpacity style={styles.searchButton} onPress={() => setIsSearchVisible(true)}>
             <Feather name="search" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
         </View>
-
-
 
         {isLoading ? (
           <View style={styles.loadingContainer}>
@@ -236,6 +253,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 15,
+  },
+  timestampText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 10,
+    fontStyle: 'italic',
   },
   filterButton: {
     marginLeft: 0,
