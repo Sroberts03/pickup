@@ -38,8 +38,8 @@ export default class TestServerFacade implements ServerFacade {
 
     constructor() {
         const currentYear = new Date().getFullYear();
-        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", true, currentYear - 2));
-        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", true, currentYear - 1));
+        this.users.set(1, new User(1, "Test", "User", "test-user@example.com", currentYear - 2));
+        this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", currentYear - 1));
 
         this.groups.set(1, new Group(1, "Morning Joggers", "Group for early morning jogs", false, new Date(), 1, 1));
         this.groups.set(2, new Group(2, "Evening Cyclists", "Group for evening cycling sessions", true, new Date(), 2, null));
@@ -156,10 +156,9 @@ export default class TestServerFacade implements ServerFacade {
     async signup(email: string, password: string, firstName: string, lastName: string): Promise<{ token: string, user: User }> {
         const newUser = new User(
             this.users.size + 1,
-            email,
             firstName,
             lastName,
-            true
+            email
         );
         this.users.set(newUser.id, newUser);
         const token = "new-token-" + newUser.id;
