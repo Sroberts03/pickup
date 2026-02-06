@@ -134,12 +134,10 @@ export default function MapTab() {
                   latitude: Number(game.location.lat),
                   longitude: Number(game.location.lng),
                 }}
-                title={game.name}
-                description={game.sportName}
                 onCalloutPress={() => handleMarkerPress(game)}
               >
                   <Callout onPress={() => handleMarkerPress(game)}>
-                      <View style={styles.callout}>
+                      <View style={[styles.callout, { maxWidth: 200 }]}>
                           <Text style={styles.calloutTitle}>{game.name}</Text>
                           <Text style={styles.calloutSport}>{game.sportName}</Text>
                           <Text style={styles.calloutInfo}>{new Date(game.startTime).toLocaleDateString()}</Text>
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     position: 'absolute',
-    right: 20,
+    left: 20,
     width: 50,
     height: 50,
     borderRadius: 25,
