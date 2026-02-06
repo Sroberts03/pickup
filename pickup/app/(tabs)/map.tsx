@@ -1,16 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View, Text, ActivityIndicator, Alert } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from "react-native-maps";
 import { useTheme, useFocusEffect } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from '@expo/vector-icons';
 import * as Location from "expo-location";
 import { useServer } from "@/contexts/ServerContext";
-import { GameWithDetails } from "@/objects/Game";
+import { useAuth } from "@/contexts/AuthContext";
+import { GameWithDetails, GameFilter } from "@/objects/Game";
 import GameDetailsModal from "@/components/GameDetailsModal";
+import FilterModal from "@/components/FilterModal";
 
 export default function MapTab() {
   const { colors } = useTheme();
   const server = useServer();
+  const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [games, setGames] = useState<GameWithDetails[]>([]);
+  const [filters, setFilters] = useState<GameFilter | null>(null);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
@@ -19,16 +27,47 @@ export default function MapTab() {
     longitudeDelta: number;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchGames = useCallback(async () => {
+    setIsRefreshing(true);
     try {
-      // Fetch all games, optionally you could filter by current view region
-      const allGames = await server.getGamesWithDetails();
+      let finalFilters: GameFilter = { ...(filters || {}) };
+
+      if (filters?.favoriteOnly && user) {
+        const favorites = await server.getFavouriteSports(user.id);
+        const favoriteNames = favorites.map((sport) => sport.name);
+        if (favoriteNames.length === 0) {
+          setGames([]);
+          return;
+        }
+
+        if (finalFilters.sport && finalFilters.sport.length > 0) {
+          finalFilters = {
+            ...finalFilters,
+            sport: finalFilters.sport.filter((name) => favoriteNames.includes(name)),
+          };
+          if (finalFilters.sport.length === 0) {
+            setGames([]);
+            return;
+          }
+        } else {
+          finalFilters = {
+            ...finalFilters,
+            sport: favoriteNames,
+          };
+        }
+      }
+
+      // Fetch games with filters
+      const allGames = await server.getGamesWithDetails(finalFilters);
       setGames(allGames);
     } catch (error) {
       console.error("Failed to fetch games for map:", error);
+    } finally {
+      setIsRefreshing(false);
     }
-  }, [server]);
+  }, [server, filters, user]);
 
   // Request location and center map
   useEffect(() => {
@@ -122,9 +161,38 @@ export default function MapTab() {
           game={selectedGame}
           onClose={() => {
             setSelectedGame(null);
-            fetchGames(); // Refresh in case join status changed
+            fetchGames();
           }}
         />
+      )}
+
+      <TouchableOpacity
+        style={[
+          styles.filterButton,
+          { 
+            top: insets.top + 10, 
+            backgroundColor: colors.card,
+          }
+        ]}
+        onPress={() => setIsFilterVisible(true)}
+      >
+        <Feather name="filter" size={24} color={colors.text} />
+      </TouchableOpacity>
+
+      <FilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setIsFilterVisible(false);
+        }}
+        currentFilters={filters}
+      />
+
+      {isRefreshing && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       )}
     </View>
   );
@@ -134,9 +202,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    pointerEvents: 'none', // Allow touches to pass through if needed, but here we probably want to block or just show loading
+  },
   map: {
     width: "100%",
     height: "100%",
+  },
+  filterButton: {
+    position: 'absolute',
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   center: {
     justifyContent: "center",
