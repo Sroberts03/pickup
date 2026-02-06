@@ -7,6 +7,7 @@ import { AuthProvider } from '../auth/AuthProvider';
 import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect } from "react";
 import { getServerFacade } from "@/serverFacade/serverFactory";
+import { DataProvider } from "@/contexts/DataContext";
 
 function RootLayoutNav() {
   const { user, loading, needsFavoriteSports } = useAuth();
@@ -46,8 +47,6 @@ function RootLayoutNav() {
     </Stack>
   );
 }
-
-import { DataProvider } from "@/contexts/DataContext";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

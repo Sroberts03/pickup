@@ -1,3 +1,5 @@
+import Location from "./Location";
+
 export enum GameStatus {
     Scheduled = 'Scheduled',
     Ongoing = 'Ongoing',
@@ -55,7 +57,6 @@ export class Game {
     }
 }
 
-
 export interface GameFilter {
     sport?: string[];
     location?: string;
@@ -70,6 +71,7 @@ export interface GameFilter {
 }
 
 export interface GameWithDetails extends Game {
+    location?: Location;
     sportName: string;
     currentPlayers: number;
 }

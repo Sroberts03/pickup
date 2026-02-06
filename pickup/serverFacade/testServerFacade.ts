@@ -246,11 +246,13 @@ export default class TestServerFacade implements ServerFacade {
             games.map(async (game) => {
                 const sport = await this.getSport(game.sportId);
                 const currentPlayers = await this.getGamePlayerCount(game.id);
+                const location = this.locations.get(game.locationId);
 
                 return {
                     ...game,
                     sportName: sport.name,
                     currentPlayers: currentPlayers,
+                    location: location,
                 };
             })
         );
@@ -326,6 +328,7 @@ export default class TestServerFacade implements ServerFacade {
                     filteredGames.map(async (game) => {
                         const sport = await this.getSport(game.sportId);
                         const currentPlayers = await this.getGamePlayerCount(game.id);
+                        const location = this.locations.get(game.locationId);
 
                         // Mock check if user 1 is joined
                         const userId = 1;
@@ -335,7 +338,8 @@ export default class TestServerFacade implements ServerFacade {
                             ...game,
                             sportName: sport.name,
                             currentPlayers: currentPlayers,
-                            isJoined: isJoined
+                            isJoined: isJoined,
+                            location: location
                         };
                     })
                 );

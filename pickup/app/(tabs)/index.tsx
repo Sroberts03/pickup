@@ -34,6 +34,7 @@ export default function Index() {
   const [isCreateGameVisible, setIsCreateGameVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
