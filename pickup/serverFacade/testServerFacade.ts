@@ -41,13 +41,14 @@ export default class TestServerFacade implements ServerFacade {
         this.users.set(1, new User(1, "Test", "User", "test-user@example.com", currentYear - 2));
         this.users.set(2, new User(2, "Jane", "Doe", "jane.doe@example.com", currentYear - 1));
 
-        this.groups.set(1, new Group(1, "Morning Joggers", "Group for early morning jogs", false, new Date(), 1, 1));
-        this.groups.set(2, new Group(2, "Evening Cyclists", "Group for evening cycling sessions", true, new Date(), 2, null));
-        this.groups.set(3, new Group(3, "Weekend Hikers", "Group for weekend hiking adventures", false, new Date(), 1, null));
-        this.groups.set(4, new Group(4, "City Runners", "Group for urban running enthusiasts", true, new Date(), 2, 2));
+        this.groups.set(1, new Group(1, "Morning Joggers", "Group for early morning jogs", 1, new Date(), new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
+        this.groups.set(2, new Group(2, "Evening Cyclists", "Group for evening cycling sessions", 2, new Date(), new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
+        this.groups.set(3, new Group(3, "Weekend Hikers", "Group for weekend hiking adventures", 1, new Date(), new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
+        this.groups.set(4, new Group(4, "City Runners", "Group for urban running enthusiasts", 2, new Date(), new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
 
         this.groupMessages.set(1, new GroupMessage(1, 1, 1, "Welcome to the Morning Joggers group!", new Date()));
         this.groupMessages.set(2, new GroupMessage(2, 2, 2, "Don't forget our ride tomorrow!", new Date()));
+        this.groupMessages.set(3, new GroupMessage(3, 3, 1, "Who's up for a hike this weekend?", new Date()));
 
         this.sports.set(1, new Sport(1, "Soccer"));
         this.sports.set(2, new Sport(2, "Basketball"));
@@ -625,6 +626,45 @@ export default class TestServerFacade implements ServerFacade {
                     reject(new Error("Location not found"));
                 }
             }, 500);
+        });
+    }
+
+    async getUserGroups(userId: number): Promise<Group[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const groupIds = this.userGroups.get(userId);
+                if (groupIds) {
+                    resolve(Array.from(groupIds).map(id => this.groups.get(id)).filter((group): group is Group => group !== undefined));
+                } else {
+                    resolve([]);
+                }
+            }, 500);
+        });
+    }
+
+    async getLastMessageInGroup(groupId: number): Promise<GroupMessage | null> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const messages = Array.from(this.groupMessages.values()).filter(msg => msg.groupId === groupId);
+                if (messages.length === 0) {
+                    resolve(null);
+                    return;
+                }
+                const lastMessage = messages.reduce((latest, msg) => msg.createdAt > latest.createdAt ? msg : latest);
+                resolve(lastMessage);
+            }, 500);
+        });
+    }
+
+    async getLastGroupMessage(groupId: number): Promise<GroupMessage | null> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const messages = Array.from(this.groupMessages.values())
+                    .filter(m => m.groupId === groupId)
+                    .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
+                
+                resolve(messages.length > 0 ? messages[0] : null);
+            }, 300);
         });
     }
 }

@@ -2,6 +2,8 @@ import { Game, GameFilter, GameWithDetails } from "@/objects/Game";
 import Sport from "@/objects/Sport";
 import User from "@/objects/User";
 import Location from "@/objects/Location";
+import Group from "@/objects/Group";
+import GroupMessage from "@/objects/GroupMessage";
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
 
 export default interface ServerFacade {
@@ -54,4 +56,7 @@ export default interface ServerFacade {
     }): Promise<Game>;
 
     getLocationById(locationId: number): Promise<Location>;
+
+    getUserGroups(userId: number): Promise<Group[]>;
+    getLastGroupMessage(groupId: number): Promise<GroupMessage | null>;
 }

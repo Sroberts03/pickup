@@ -1,18 +1,123 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
+import { useServer } from "@/contexts/ServerContext";
+import { useAuth } from "@/contexts/AuthContext";
+import React, { useEffect, useState } from "react";
+import Group from "@/objects/Group";
+import GroupMessage from "@/objects/GroupMessage";
+
+interface GroupWithMessage {
+  group: Group;
+  lastMessage: GroupMessage | null;
+}
 
 export default function GroupsScreen() {
   const { colors } = useTheme();
+  const server = useServer();
+  const { user } = useAuth();
+  const [groupsData, setGroupsData] = useState<GroupWithMessage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      if (!user) return;
+      try {
+        setLoading(true);
+        const userGroups = await server.getUserGroups(user.id);
+        
+        const groupsWithMessages = await Promise.all(
+          userGroups.map(async (group) => {
+            const lastMessage = await server.getLastGroupMessage(group.id);
+            return { group, lastMessage };
+          })
+        );
+        
+        // Sort by last message date (most recent first)
+        groupsWithMessages.sort((a, b) => {
+          const dateA = a.lastMessage?.sentAt || a.group.createdAt;
+          const dateB = b.lastMessage?.sentAt || b.group.createdAt;
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
+        });
+
+        setGroupsData(groupsWithMessages);
+      } catch (error) {
+        console.error("Failed to load groups:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGroups();
+  }, [server, user]);
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }: { item: GroupWithMessage }) => {
+    const { group, lastMessage } = item;
+    
+    let dateStr = "";
+    let messageContent = "No messages yet";
+    
+    if (lastMessage) {
+      const messageDate = new Date(lastMessage.sentAt);
+      const now = new Date();
+      const isToday = messageDate.getDate() === now.getDate() && 
+                      messageDate.getMonth() === now.getMonth() && 
+                      messageDate.getFullYear() === now.getFullYear();
+      
+      const isYesterday = new Date(now.getTime() - 86400000).getDate() === messageDate.getDate();
+
+      if (isToday) {
+        dateStr = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (isYesterday) {
+        dateStr = "Yesterday";
+      } else {
+        dateStr = messageDate.toLocaleDateString();
+      }
+      
+      messageContent = lastMessage.content;
+    } else {
+       dateStr = new Date(group.createdAt).toLocaleDateString();
+    }
+    
+    return (
+      <TouchableOpacity style={styles.itemContainer}>
+        <Image 
+          source={{ uri: `https://api.dicebear.com/7.x/initials/png?seed=${group.name}&backgroundColor=006eff` }} 
+          style={styles.avatar} 
+        />
+        <View style={[styles.textContainer, { borderBottomColor: colors.border }]}>
+          <View style={styles.headerRow}>
+            <Text style={[styles.groupName, { color: colors.text }]} numberOfLines={1}>
+              {group.name}
+            </Text>
+            <Text style={[styles.timeText, { color: colors.text }]}>{dateStr}</Text>
+          </View>
+          <View style={styles.messageRow}>
+            <Text style={[styles.lastMessage, { color: colors.text }]} numberOfLines={2}>
+              {messageContent}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Groups</Text>
-        <Text style={[styles.subtitle, { color: colors.text }]}>
-          Discover new content here
-        </Text>
-      </View>
+      <FlatList
+        data={groupsData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.group.id.toString()}
+        contentContainerStyle={styles.listContent}
+      />
     </SafeAreaView>
   );
 }
@@ -21,19 +126,56 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  content: {
-    flex: 1,
+  center: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
-  title: {
-    fontSize: 32,
+  listContent: {
+    paddingBottom: 20,
+  },
+  itemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 15,
+    backgroundColor: "#e1e1e1",
+  },
+  textContainer: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "center",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 15,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center", // Align text baselines somewhat
+    marginBottom: 4,
+  },
+  groupName: {
+    fontSize: 17,
     fontWeight: "bold",
-    marginBottom: 10,
+    flex: 1,
+    marginRight: 10,
   },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
+  timeText: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
+  messageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  lastMessage: {
+    fontSize: 15,
+    opacity: 0.6,
+    lineHeight: 20,
   },
 });
