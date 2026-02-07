@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect, useState } from "react";
 import Group from "@/objects/Group";
 import GroupMessage from "@/objects/GroupMessage";
+import { useRouter } from "expo-router";
 
 interface GroupWithMessage {
   group: Group;
@@ -16,6 +17,7 @@ export default function GroupsScreen() {
   const { colors } = useTheme();
   const server = useServer();
   const { user } = useAuth();
+  const router = useRouter();
   const [groupsData, setGroupsData] = useState<GroupWithMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +90,13 @@ export default function GroupsScreen() {
     }
     
     return (
-      <TouchableOpacity style={styles.itemContainer}>
+      <TouchableOpacity 
+        style={styles.itemContainer}
+        onPress={() => router.push({
+          pathname: '/group/[id]',
+          params: { id: group.id, name: group.name }
+        })}
+      >
         <Image 
           source={{ uri: `https://api.dicebear.com/7.x/initials/png?seed=${group.name}&backgroundColor=006eff` }} 
           style={styles.avatar} 
@@ -137,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 1,
   },
   avatar: {
     width: 60,

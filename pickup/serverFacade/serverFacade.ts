@@ -59,4 +59,7 @@ export default interface ServerFacade {
 
     getUserGroups(userId: number): Promise<Group[]>;
     getLastGroupMessage(groupId: number): Promise<GroupMessage | null>;
+    getGroupMessages(groupId: number): Promise<GroupMessage[]>;
+    getGroupMembers(groupId: number): Promise<User[]>;
+    sendGroupMessage(groupId: number, content: string): Promise<GroupMessage>;
 }

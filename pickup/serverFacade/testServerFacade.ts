@@ -49,6 +49,7 @@ export default class TestServerFacade implements ServerFacade {
         this.groupMessages.set(1, new GroupMessage(1, 1, 1, "Welcome to the Morning Joggers group!", new Date()));
         this.groupMessages.set(2, new GroupMessage(2, 2, 2, "Don't forget our ride tomorrow!", new Date()));
         this.groupMessages.set(3, new GroupMessage(3, 3, 1, "Who's up for a hike this weekend?", new Date()));
+        this.groupMessages.set(4, new GroupMessage(4, 1, 2, "Let's plan a city run for next week!", new Date()));
 
         this.sports.set(1, new Sport(1, "Soccer"));
         this.sports.set(2, new Sport(2, "Basketball"));
@@ -109,8 +110,8 @@ export default class TestServerFacade implements ServerFacade {
         this.userGames.set(1, new Set([1]));
         this.userGames.set(2, new Set([2]));
 
-        this.userGroups.set(1, new Set([1, 3]));
-        this.userGroups.set(2, new Set([2, 4]));
+        this.userGroups.set(1, new Set([1, ,4]));
+        this.userGroups.set(2, new Set([1, 2, 4]));
 
         this.skillLevels.set(1, "Beginner");
         this.skillLevels.set(2, "Intermediate");
@@ -664,6 +665,55 @@ export default class TestServerFacade implements ServerFacade {
                     .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
                 
                 resolve(messages.length > 0 ? messages[0] : null);
+            }, 300);
+        });
+    }
+
+    async getGroupMessages(groupId: number): Promise<GroupMessage[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const messages = Array.from(this.groupMessages.values())
+                    .filter(m => m.groupId === groupId)
+                    .sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime());
+                resolve(messages);
+            }, 300);
+        });
+    }
+
+    async sendGroupMessage(groupId: number, content: string): Promise<GroupMessage> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (!this.currentUserId) {
+                    reject(new Error("User not logged in"));
+                    return;
+                }
+
+                const newMessageId = this.groupMessages.size + 1;
+                const newMessage = new GroupMessage(
+                    newMessageId,
+                    groupId,
+                    this.currentUserId,
+                    content,
+                    new Date()
+                );
+
+                this.groupMessages.set(newMessageId, newMessage);
+                resolve(newMessage);
+            }, 300);
+        });
+    }
+
+    async getGroupMembers(groupId: number): Promise<User[]> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const members: User[] = [];
+                this.userGroups.forEach((groups, userId) => {
+                    if (groups.has(groupId)) {
+                        const user = this.users.get(userId);
+                        if (user) members.push(user);
+                    }
+                });
+                resolve(members);
             }, 300);
         });
     }
