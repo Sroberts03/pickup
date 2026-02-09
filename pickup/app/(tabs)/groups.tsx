@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 interface GroupWithMessage {
   group: Group;
   lastMessage: GroupMessage | null;
+  isUnread: boolean;
 }
 
 export default function GroupsScreen() {
@@ -29,8 +30,11 @@ export default function GroupsScreen() {
       
       const groupsWithMessages = await Promise.all(
         userGroups.map(async (group) => {
-          const lastMessage = await server.getLastGroupMessage(group.id);
-          return { group, lastMessage };
+          const [lastMessage, isUnread] = await Promise.all([
+            server.getLastGroupMessage(group.id),
+            server.getGroupUnreadStatus(group.id),
+          ]);
+          return { group, lastMessage, isUnread };
         })
       );
       
@@ -64,7 +68,7 @@ export default function GroupsScreen() {
   }
 
   const renderItem = ({ item }: { item: GroupWithMessage }) => {
-    const { group, lastMessage } = item;
+    const { group, lastMessage, isUnread } = item;
     
     let dateStr = "";
     let messageContent = "No messages yet";
@@ -108,7 +112,10 @@ export default function GroupsScreen() {
             <Text style={[styles.groupName, { color: colors.text }]} numberOfLines={1}>
               {group.name}
             </Text>
-            <Text style={[styles.timeText, { color: colors.text }]}>{dateStr}</Text>
+            <View style={styles.metaRow}>
+              {isUnread && <View style={styles.unreadDot} />}
+              <Text style={[styles.timeText, { color: colors.text }]}>{dateStr}</Text>
+            </View>
           </View>
           <View style={styles.messageRow}>
             <Text style={[styles.lastMessage, { color: colors.text }]} numberOfLines={2}>
@@ -169,6 +176,11 @@ const styles = StyleSheet.create({
     alignItems: "center", // Align text baselines somewhat
     marginBottom: 4,
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   groupName: {
     fontSize: 17,
     fontWeight: "bold",
@@ -178,6 +190,12 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 12,
     opacity: 0.6,
+  },
+  unreadDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#007AFF",
   },
   messageRow: {
     flexDirection: "row",

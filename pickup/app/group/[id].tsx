@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Image, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
+import { useTheme, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useServer } from '@/contexts/ServerContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,9 +26,17 @@ export default function GroupChatScreen() {
     const [sending, setSending] = useState(false);
     const [inputText, setInputText] = useState("");
     const [messageUsers, setMessageUsers] = useState<Map<number, User>>(new Map());
+    const [lastReadMessageId, setLastReadMessageId] = useState<number | null>(null);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [showMembers, setShowMembers] = useState(false);
     const [members, setMembers] = useState<User[]>([]);
+
+    const firstUnreadIndex = React.useMemo(() => {
+        if (!user || lastReadMessageId === null) return -1;
+        return messages.findIndex(
+            (message) => message.id > lastReadMessageId && message.userId !== user.id
+        );
+    }, [lastReadMessageId, messages, user]);
 
     const flatListRef = useRef<FlatList>(null);
 
@@ -38,6 +46,31 @@ export default function GroupChatScreen() {
             websocket.connect();
         }
     }, [websocket]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!user) return;
+
+            server.getLastReadMessageId(groupId)
+                .then((lastReadId) => setLastReadMessageId(lastReadId))
+                .catch((error) => {
+                    console.error("Failed to load last read marker:", error);
+                });
+
+            return () => {
+                if (!user) return;
+                const lastNonSelfMessageId = [...messages]
+                    .reverse()
+                    .find((message) => message.userId !== user.id)?.id;
+
+                if (lastNonSelfMessageId === undefined) return;
+
+                server.lastMessageRead(groupId, lastNonSelfMessageId).catch((error) => {
+                    console.error("Failed to mark messages as read:", error);
+                });
+            };
+        }, [groupId, messages, server, user])
+    );
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -173,8 +206,17 @@ export default function GroupChatScreen() {
             showDateSeparator
         );
 
+        const shouldShowLastReadSeparator = index === firstUnreadIndex;
+
         return (
             <View>
+                {shouldShowLastReadSeparator && (
+                    <View style={styles.lastReadSeparator}>
+                        <View style={styles.lastReadLine} />
+                        <Text style={styles.lastReadText}>Last read</Text>
+                        <View style={styles.lastReadLine} />
+                    </View>
+                )}
                 {showDateSeparator && (
                     <View style={styles.dateSeparator}>
                         <Text style={styles.dateLabel}>{dateLabel}</Text>
@@ -377,6 +419,25 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#8e8e93',
         fontWeight: '500',
+    },
+    lastReadSeparator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 8,
+    },
+    lastReadLine: {
+        flex: 1,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: '#8e8e93',
+        opacity: 0.6,
+    },
+    lastReadText: {
+        fontSize: 12,
+        color: '#8e8e93',
+        fontWeight: '500',
+        marginHorizontal: 8,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     messageContainer: {
         flexDirection: 'row',

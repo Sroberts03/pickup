@@ -1,11 +1,46 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@react-navigation/native";
-import { useColorScheme } from "react-native";
+import { useTheme, useFocusEffect } from "@react-navigation/native";
+import { useColorScheme, View, StyleSheet } from "react-native";
+import { useCallback, useState } from "react";
+import { useServer } from "@/contexts/ServerContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function TabsLayout() {
   const { colors } = useTheme();
   const colorScheme = useColorScheme();
+  const server = useServer();
+  const { user } = useAuth();
+  const [hasUnreadGroups, setHasUnreadGroups] = useState(false);
+
+  const refreshUnread = useCallback(async () => {
+    if (!user) {
+      setHasUnreadGroups(false);
+      return;
+    }
+
+    try {
+      const userGroups = await server.getUserGroups(user.id);
+      if (userGroups.length === 0) {
+        setHasUnreadGroups(false);
+        return;
+      }
+
+      const unreadStatuses = await Promise.all(
+        userGroups.map((group) => server.getGroupUnreadStatus(group.id))
+      );
+
+      setHasUnreadGroups(unreadStatuses.some(Boolean));
+    } catch (error) {
+      console.error("Failed to refresh group unread state:", error);
+    }
+  }, [server, user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshUnread();
+    }, [refreshUnread])
+  );
   
   return (
     <Tabs
@@ -62,7 +97,12 @@ export default function TabsLayout() {
         options={{
           title: "Groups",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
+            <View style={styles.iconWrapper}>
+              <Ionicons name="people-outline" size={size} color={color} />
+              {hasUnreadGroups && (
+                <View style={[styles.tabUnreadDot, { borderColor: colors.background }]} />
+              )}
+            </View>
           ),
         }}
       />
@@ -78,3 +118,19 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconWrapper: {
+    position: "relative",
+  },
+  tabUnreadDot: {
+    position: "absolute",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#007AFF",
+    top: -2,
+    right: -6,
+    borderWidth: 2,
+  },
+});

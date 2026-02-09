@@ -28,6 +28,7 @@ export default class TestServerFacade implements ServerFacade {
     currentUserId: number | null = null;
     groups = new Map<number, Group>();
     groupMessages = new Map<number, GroupMessage>();
+    groupLastRead = new Map<number, Map<number, number>>();
     sports = new Map<number, Sport>();
     skillLevels = new Map<number, string>();
     games = new Map<number, Game>();
@@ -714,6 +715,76 @@ export default class TestServerFacade implements ServerFacade {
                 this.groupMessages.set(newMessageId, newMessage);
                 resolve(newMessage);
             }, 300);
+        });
+    }
+
+    async getGroupUnreadStatus(groupId: number): Promise<boolean> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if (!this.currentUserId) {
+                    resolve(false);
+                    return;
+                }
+
+                const messages = Array.from(this.groupMessages.values())
+                    .filter(m => m.groupId === groupId)
+                    .sort((a, b) => b.id - a.id);
+
+                if (messages.length === 0) {
+                    resolve(false);
+                    return;
+                }
+
+                const lastMessage = messages[0];
+                if (lastMessage.userId === this.currentUserId) {
+                    resolve(false);
+                    return;
+                }
+
+                const userReads = this.groupLastRead.get(this.currentUserId);
+                const lastReadId = userReads?.get(groupId);
+
+                if (!lastReadId) {
+                    resolve(true);
+                    return;
+                }
+
+                resolve(lastMessage.id > lastReadId);
+            }, 150);
+        });
+    }
+
+    async getLastReadMessageId(groupId: number): Promise<number | null> {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if (!this.currentUserId) {
+                    resolve(null);
+                    return;
+                }
+
+                const userReads = this.groupLastRead.get(this.currentUserId);
+                const lastReadId = userReads?.get(groupId) ?? null;
+                resolve(lastReadId ?? null);
+            }, 150);
+        });
+    }
+
+    async lastMessageRead(groupId: number, lastReadMessageId?: number | null): Promise<void> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (!this.currentUserId) {
+                    reject(new Error("User not logged in"));
+                    return;
+                }
+
+                const lastReadId = typeof lastReadMessageId === "number"
+                    ? lastReadMessageId
+                    : 0;
+                const userReads = this.groupLastRead.get(this.currentUserId) ?? new Map<number, number>();
+                userReads.set(groupId, lastReadId);
+                this.groupLastRead.set(this.currentUserId, userReads);
+                resolve();
+            }, 150);
         });
     }
 
