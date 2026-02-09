@@ -70,7 +70,6 @@ export default class TestServerFacade implements ServerFacade {
             10,
             GameStatus.Scheduled,
             SkillLevel.Beginner,
-            true,
             "Normal soccer rules apply"
         ));
         this.games.set(2, new Game(
@@ -85,7 +84,6 @@ export default class TestServerFacade implements ServerFacade {
             8,
             GameStatus.Scheduled,
             SkillLevel.Intermediate,
-            false,
             "Normal basketball rules apply"
         ));
         this.games.set(3, new Game(
@@ -100,7 +98,6 @@ export default class TestServerFacade implements ServerFacade {
             12,
             GameStatus.Scheduled,
             SkillLevel.Advanced,
-            true,
             "Normal football rules apply"
         ));
 
@@ -110,7 +107,7 @@ export default class TestServerFacade implements ServerFacade {
         this.userGames.set(1, new Set([1]));
         this.userGames.set(2, new Set([2]));
 
-        this.userGroups.set(1, new Set([1, ,4]));
+        this.userGroups.set(1, new Set([1,4]));
         this.userGroups.set(2, new Set([1, 2, 4]));
 
         this.skillLevels.set(1, "Beginner");
@@ -651,7 +648,7 @@ export default class TestServerFacade implements ServerFacade {
                     resolve(null);
                     return;
                 }
-                const lastMessage = messages.reduce((latest, msg) => msg.createdAt > latest.createdAt ? msg : latest);
+                const lastMessage = messages.reduce((latest, msg) => msg.sentAt > latest.sentAt ? msg : latest);
                 resolve(lastMessage);
             }, 500);
         });
