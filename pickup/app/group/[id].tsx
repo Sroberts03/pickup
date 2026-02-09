@@ -9,8 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import GroupMessage from '@/objects/GroupMessage';
 import User from '@/objects/User';
 import UserDetailsModal from '@/components/UserDetailsModal';
+import { useWebsocket } from '@/contexts/SocketContext';
+import { SocketState } from '@/websocket/websocket';
 
 export default function GroupChatScreen() {
+    const websocket = useWebsocket();
     const { id, name } = useLocalSearchParams();
     const groupId = Number(id);
     const { colors } = useTheme();
@@ -30,15 +33,21 @@ export default function GroupChatScreen() {
     const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
+        if (websocket && websocket.readyState === SocketState.CLOSED) {
+            console.log("Socket was closed, initiating connection...");
+            websocket.connect();
+        }
+    }, [websocket]);
+
+    useEffect(() => {
         const fetchMessages = async () => {
             try {
                 const fetchedMessages = await server.getGroupMessages(groupId);
                 setMessages(fetchedMessages);
-                
-                // Fetch user details for messages
+
                 const senderIds = new Set(fetchedMessages.map(m => m.userId));
                 const userMap = new Map<number, User>();
-                
+
                 await Promise.all(Array.from(senderIds).map(async (senderId) => {
                     if (senderId === user?.id) {
                         userMap.set(senderId, user!);
@@ -47,7 +56,7 @@ export default function GroupChatScreen() {
                         if (sender) userMap.set(senderId, sender);
                     }
                 }));
-                
+
                 setMessageUsers(userMap);
                 setLoading(false);
             } catch (error) {
@@ -58,28 +67,69 @@ export default function GroupChatScreen() {
 
         if (user) fetchMessages();
 
-        // Fetch group members
         server.getGroupMembers(groupId).then(fetchedMembers => {
             setMembers(fetchedMembers.filter(m => m.id !== user?.id));
         });
-        
-        // Poll for new messages every 3 seconds
-        const interval = setInterval(fetchMessages, 3000);
-        return () => clearInterval(interval);
-    }, [groupId, server, user]);
+
+        if (websocket) {
+            websocket.onmessage = (event: { data: any }) => {
+                try {
+                    // 1. Most WebSockets send strings; you must parse them
+                    const rawData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+                    // 2. Ensure the data matches your GroupMessage structure
+                    const newMessage = rawData as GroupMessage;
+
+                    if (newMessage.groupId === groupId) {
+                        setMessages(prev => [...prev, newMessage]);
+
+                        // 3. Use a functional update for the Map to avoid dependency loops
+                        setMessageUsers(prevMap => {
+                            if (!prevMap.has(newMessage.userId)) {
+                                // Fetch the user in the background if missing
+                                server.getUser(newMessage.userId).then(sender => {
+                                    if (sender) {
+                                        setMessageUsers(current => new Map(current).set(sender.id, sender));
+                                    }
+                                });
+                            }
+                            return prevMap;
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error handling socket message:", e);
+                }
+            };
+
+            return () => {
+                websocket.onmessage = null;
+            };
+        }
+        // REMOVED messageUsers from dependencies to prevent infinite loops
+    }, [groupId, server, user, websocket]);
 
     const handleSend = async () => {
-        if (!inputText.trim() || sending) return;
-        
-        setSending(true);
+        if (!inputText.trim() || sending || !websocket) return;
+
+        const messageContent = inputText.trim();
+
+        // Prepare the payload based on what your server expects
+        const payload = JSON.stringify({
+            type: 'SEND_GROUP_MESSAGE',
+            groupId: groupId,
+            content: messageContent,
+            userId: user?.id,
+            sentAt: new Date().toISOString()
+        });
+
         try {
-            await server.sendGroupMessage(groupId, inputText.trim());
+            setSending(true);
+
+            websocket.send(payload);
+
             setInputText("");
-            // Refresh messages immediately
-            const fetchedMessages = await server.getGroupMessages(groupId);
-            setMessages(fetchedMessages);
         } catch (error) {
-            console.error("Failed to send message:", error);
+            console.error("Failed to send socket message:", error);
         } finally {
             setSending(false);
         }
@@ -88,22 +138,22 @@ export default function GroupChatScreen() {
     const renderMessage = ({ item, index }: { item: GroupMessage, index: number }) => {
         const isCurrentUser = item.userId === user?.id;
         const sender = messageUsers.get(item.userId);
-        
+
         // Use fun-emoji style to match profile
-        const avatarUrl = sender 
-            ? `https://api.dicebear.com/7.x/fun-emoji/png?seed=${sender.id}` 
+        const avatarUrl = sender
+            ? `https://api.dicebear.com/7.x/fun-emoji/png?seed=${sender.id}`
             : `https://api.dicebear.com/7.x/fun-emoji/png?seed=${item.userId}`;
-        
+
         const showAvatar = !isCurrentUser && (
-            index === messages.length - 1 || 
+            index === messages.length - 1 ||
             messages[index + 1].userId !== item.userId
         );
 
         // Date separator logic
         const messageDate = new Date(item.sentAt);
         const prevMessageDate = index > 0 ? new Date(messages[index - 1].sentAt) : null;
-        
-        const showDateSeparator = !prevMessageDate || 
+
+        const showDateSeparator = !prevMessageDate ||
             messageDate.getDate() !== prevMessageDate.getDate() ||
             messageDate.getMonth() !== prevMessageDate.getMonth();
 
@@ -118,7 +168,7 @@ export default function GroupChatScreen() {
         }
 
         const showName = !isCurrentUser && (
-            index === 0 || 
+            index === 0 ||
             messages[index - 1].userId !== item.userId ||
             showDateSeparator
         );
@@ -126,12 +176,12 @@ export default function GroupChatScreen() {
         return (
             <View>
                 {showDateSeparator && (
-                     <View style={styles.dateSeparator}>
-                         <Text style={styles.dateLabel}>{dateLabel}</Text>
-                     </View>
+                    <View style={styles.dateSeparator}>
+                        <Text style={styles.dateLabel}>{dateLabel}</Text>
+                    </View>
                 )}
                 <View style={[
-                    styles.messageContainer, 
+                    styles.messageContainer,
                     isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
                 ]}>
                     {!isCurrentUser && (
@@ -143,7 +193,7 @@ export default function GroupChatScreen() {
                             ) : <View style={styles.avatarSpacer} />}
                         </View>
                     )}
-                    
+
                     <View style={{ maxWidth: '75%' }}>
                         {showName && sender && (
                             <Text style={styles.senderName}>
@@ -156,7 +206,7 @@ export default function GroupChatScreen() {
                             isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble
                         ]}>
                             <Text style={[
-                                styles.messageText, 
+                                styles.messageText,
                                 isCurrentUser ? styles.currentUserText : styles.otherUserText
                             ]}>
                                 {item.content}
@@ -165,14 +215,14 @@ export default function GroupChatScreen() {
                     </View>
                 </View>
                 {/* Spacer for grouping */}
-                <View style={{ height: 2 }} /> 
+                <View style={{ height: 2 }} />
             </View>
         );
     };
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <Stack.Screen 
+            <Stack.Screen
                 options={{
                     headerShown: true,
                     headerTitle: name as string || "Group Chat",
@@ -182,9 +232,9 @@ export default function GroupChatScreen() {
                     headerStyle: { backgroundColor: colors.background },
                     headerShadowVisible: false,
                     headerRight: () => (
-                        <TouchableOpacity 
-                            onPress={() => setShowMembers(true)} 
-                            style={{ 
+                        <TouchableOpacity
+                            onPress={() => setShowMembers(true)}
+                            style={{
                                 width: 44,
                                 height: 44,
                                 justifyContent: 'center',
@@ -195,10 +245,10 @@ export default function GroupChatScreen() {
                             <Ionicons name="information-circle-outline" size={30} color={colors.primary} />
                         </TouchableOpacity>
                     ),
-                }} 
+                }}
             />
-            
-            <KeyboardAvoidingView 
+
+            <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
                 keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
@@ -221,9 +271,9 @@ export default function GroupChatScreen() {
                 )}
 
                 <View style={[
-                    styles.inputContainer, 
-                    { 
-                        borderTopColor: colors.border, 
+                    styles.inputContainer,
+                    {
+                        borderTopColor: colors.border,
                         backgroundColor: colors.background,
                         paddingBottom: Math.max(insets.bottom, 8)
                     }
@@ -236,13 +286,13 @@ export default function GroupChatScreen() {
                         onChangeText={setInputText}
                         multiline
                     />
-                    
+
                     {inputText.length > 0 ? (
                         <TouchableOpacity onPress={handleSend} style={styles.sendButton} disabled={sending}>
                             <Ionicons name="arrow-up-circle" size={32} color={colors.primary} />
                         </TouchableOpacity>
                     ) : (
-                         <View style={{ width: 32 }} /> // Spacer to keep layout if needed or could show mic/camera
+                        <View style={{ width: 32 }} /> // Spacer to keep layout if needed or could show mic/camera
                     )}
                 </View>
             </KeyboardAvoidingView>
@@ -267,14 +317,14 @@ export default function GroupChatScreen() {
                             <Text style={{ color: colors.primary, fontSize: 16 }}>Done</Text>
                         </TouchableOpacity>
                     </View>
-                    
+
                     <ScrollView contentContainerStyle={styles.membersList}>
                         {members.length === 0 ? (
                             <Text style={[styles.emptyText, { color: colors.text }]}>No other members yet.</Text>
                         ) : (
                             members.map(member => (
-                                <TouchableOpacity 
-                                    key={member.id} 
+                                <TouchableOpacity
+                                    key={member.id}
                                     style={[styles.memberItem, { borderBottomColor: colors.border }]}
                                     onPress={() => {
                                         setShowMembers(false);
@@ -282,9 +332,9 @@ export default function GroupChatScreen() {
                                         setTimeout(() => setSelectedUser(member), 500);
                                     }}
                                 >
-                                    <Image 
-                                        source={{ uri: `https://api.dicebear.com/7.x/fun-emoji/png?seed=${member.id}` }} 
-                                        style={styles.memberAvatar} 
+                                    <Image
+                                        source={{ uri: `https://api.dicebear.com/7.x/fun-emoji/png?seed=${member.id}` }}
+                                        style={styles.memberAvatar}
                                     />
                                     <View>
                                         <Text style={[styles.memberName, { color: colors.text }]}>

@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect } from "react";
 import { getServerFacade } from "@/serverFacade/serverFactory";
 import { DataProvider } from "@/contexts/DataContext";
+import { WebsocketContext } from "@/contexts/SocketContext";
+import { getWebSocketFacade } from "@/websocket/websocketFactory";
 
 function RootLayoutNav() {
   const { user, loading, needsFavoriteSports } = useAuth();
@@ -51,16 +53,19 @@ function RootLayoutNav() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const serverFacade = React.useMemo(() => getServerFacade(), []);
+  const WebSocketFacade = React.useMemo(() => getWebSocketFacade(serverFacade), [serverFacade]);
 
   return (
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <ServerContext.Provider value={serverFacade}>
-          <AuthProvider>
-            <DataProvider>
-              <RootLayoutNav />
-            </DataProvider>
-          </AuthProvider>
+          <WebsocketContext.Provider value={WebSocketFacade}>
+            <AuthProvider>
+              <DataProvider>
+                <RootLayoutNav />
+              </DataProvider>
+            </AuthProvider>
+          </WebsocketContext.Provider>
         </ServerContext.Provider>
       </ThemeProvider>
     </SafeAreaProvider>
