@@ -142,7 +142,9 @@ export default function MapTab() {
                       <View style={[styles.callout, { maxWidth: 200 }]}>
                           <Text style={styles.calloutTitle}>{game.name}</Text>
                           <Text style={styles.calloutSport}>{game.sportName}</Text>
-                          <Text style={styles.calloutInfo}>{new Date(game.startTime).toLocaleDateString()}</Text>
+                          <Text style={styles.calloutInfo}>
+                            {new Date(game.startTime).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(game.startTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
+                          </Text>
                       </View>
                   </Callout>
               </Marker>

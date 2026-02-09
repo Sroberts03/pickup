@@ -528,9 +528,15 @@ export default class TestServerFacade implements ServerFacade {
                     return;
                 }
 
+                // Filter to include games from 2 days prior onwards
+                const twoDaysAgo = new Date();
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                twoDaysAgo.setHours(0, 0, 0, 0);
+
                 const userGames = Array.from(userGameIds)
                     .map(gameId => this.games.get(gameId))
-                    .filter((game): game is Game => game !== undefined);
+                    .filter((game): game is Game => game !== undefined)
+                    .filter(game => new Date(game.startTime) >= twoDaysAgo);
 
                 const gamesWithDetails = await Promise.all(
                     userGames.map(async (game) => {

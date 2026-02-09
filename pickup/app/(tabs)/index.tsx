@@ -22,6 +22,44 @@ function getSportImage(sportName: string): ImageSourcePropType {
   return require("../../assets/images/football.png"); // fallback if unknown
 }
 
+function formatGameDateTime(date: Date): string {
+  const gameDate = new Date(date);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const timeStr = gameDate.toLocaleTimeString([], { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+
+  // Check if it's today
+  if (gameDate.toDateString() === today.toDateString()) {
+    return `Today at ${timeStr}`;
+  }
+
+  // Check if it's tomorrow
+  if (gameDate.toDateString() === tomorrow.toDateString()) {
+    return `Tomorrow at ${timeStr}`;
+  }
+
+  // Check if it's within the next 7 days
+  const daysDiff = Math.floor((gameDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (daysDiff >= 0 && daysDiff < 7) {
+    const dayName = gameDate.toLocaleDateString([], { weekday: 'short' });
+    return `${dayName} at ${timeStr}`;
+  }
+
+  // Otherwise show full date
+  const dateStr = gameDate.toLocaleDateString([], { 
+    month: 'short', 
+    day: 'numeric',
+    year: gameDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+  });
+  return `${dateStr} at ${timeStr}`;
+}
+
 export default function Index() {
   const { colors } = useTheme();
   const server = useServer();
@@ -72,7 +110,7 @@ export default function Index() {
               ...finalFilters,
               sport: finalFilters.sport.filter((name) => favoriteNames.includes(name)),
             };
-            if (finalFilters.sport.length === 0) {
+            if (finalFilters.sport && finalFilters.sport.length === 0) {
               setGames([]);
               return;
             }
@@ -180,7 +218,7 @@ export default function Index() {
               >
                 <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
                   <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>
-                  <Text style={[styles.dateText, { color: colors.text }]}>{game.startTime.toString()}</Text>
+                  <Text style={[styles.dateText, { color: colors.text }]}>{formatGameDateTime(game.startTime)}</Text>
                 </View>
 
                 <View style={[styles.gameInfo, { backgroundColor: colors.background }]}>
