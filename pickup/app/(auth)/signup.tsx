@@ -3,7 +3,8 @@ import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from "react-native";
 import { useRouter } from 'expo-router';
-import logo from '@/assets/images/pickup.png';
+
+const logo = require('@/assets/images/pickup.png'); 
 
 export default function SignupPage() {
     const { signup } = useAuth();

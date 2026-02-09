@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import logo from '@/assets/images/pickup.png'; 
+
+const logo = require('@/assets/images/pickup.png'); 
 
 export default function Login() {
   const { login } = useAuth();

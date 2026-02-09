@@ -32,10 +32,10 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "config": {
-          "googleMaps": {
-            "apiKey": "ANDROID_GOOGLE_MAPS_API_KEY"
-          }
-        },
+        "googleMaps": {
+          "apiKey": "ANDROID_GOOGLE_MAPS_API_KEY"
+        }
+      },
       "package": "com.samroberts.pickup",
       "versionCode": 1
     },
@@ -57,7 +57,8 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
