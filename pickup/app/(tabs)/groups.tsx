@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@react-navigation/native";
+import { useTheme, useFocusEffect } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Group from "@/objects/Group";
 import GroupMessage from "@/objects/GroupMessage";
 import { useRouter } from "expo-router";
@@ -21,37 +21,39 @@ export default function GroupsScreen() {
   const [groupsData, setGroupsData] = useState<GroupWithMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      if (!user) return;
-      try {
-        setLoading(true);
-        const userGroups = await server.getUserGroups(user.id);
-        
-        const groupsWithMessages = await Promise.all(
-          userGroups.map(async (group) => {
-            const lastMessage = await server.getLastGroupMessage(group.id);
-            return { group, lastMessage };
-          })
-        );
-        
-        // Sort by last message date (most recent first)
-        groupsWithMessages.sort((a, b) => {
-          const dateA = a.lastMessage?.sentAt || a.group.createdAt;
-          const dateB = b.lastMessage?.sentAt || b.group.createdAt;
-          return new Date(dateB).getTime() - new Date(dateA).getTime();
-        });
+  const fetchGroups = useCallback(async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const userGroups = await server.getUserGroups(user.id);
+      
+      const groupsWithMessages = await Promise.all(
+        userGroups.map(async (group) => {
+          const lastMessage = await server.getLastGroupMessage(group.id);
+          return { group, lastMessage };
+        })
+      );
+      
+      // Sort by last message date (most recent first)
+      groupsWithMessages.sort((a, b) => {
+        const dateA = a.lastMessage?.sentAt || a.group.createdAt;
+        const dateB = b.lastMessage?.sentAt || b.group.createdAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      });
 
-        setGroupsData(groupsWithMessages);
-      } catch (error) {
-        console.error("Failed to load groups:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGroups();
+      setGroupsData(groupsWithMessages);
+    } catch (error) {
+      console.error("Failed to load groups:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [server, user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchGroups();
+    }, [fetchGroups])
+  );
 
   if (loading) {
     return (
