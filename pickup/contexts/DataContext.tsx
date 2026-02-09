@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useServer } from './ServerContext';
 import { useAuth } from './AuthContext';
-import { GameWithDetails } from '@/objects/Game';
+import { GameWithDetails, GameFilter } from '@/objects/Game';
 import Sport from '@/objects/Sport';
 
 interface UserStats {
@@ -16,6 +16,8 @@ interface DataContextType {
     userStats: UserStats | null;
     loading: boolean;
     refreshData: () => Promise<void>;
+    sharedFilters: GameFilter | null;
+    setSharedFilters: (filters: GameFilter | null) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -36,6 +38,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [favoriteSports, setFavoriteSports] = useState<Sport[]>([]);
     const [userStats, setUserStats] = useState<UserStats | null>(null);
     const [loading, setLoading] = useState(false);
+    const [sharedFilters, setSharedFilters] = useState<GameFilter | null>(null);
 
     const refreshData = useCallback(async () => {
         if (!user) {
@@ -74,7 +77,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [refreshData]);
 
     return (
-        <DataContext.Provider value={{ userGames, favoriteSports, userStats, loading, refreshData }}>
+        <DataContext.Provider value={{ userGames, favoriteSports, userStats, loading, refreshData, sharedFilters, setSharedFilters }}>
             {children}
         </DataContext.Provider>
     );

@@ -68,6 +68,7 @@ export interface GameFilter {
     longitude?: number;
     radiusKm?: number;
     favoriteOnly?: boolean;
+    happeningToday?: boolean;
 }
 
 export interface GameWithDetails extends Game {

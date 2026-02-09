@@ -231,6 +231,17 @@ export default class TestServerFacade implements ServerFacade {
                         return distance <= (filters.radiusKm as number);
                     });
                 }
+                if (filters.happeningToday) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    
+                    games = games.filter(game => {
+                        const gameDate = new Date(game.startTime);
+                        return gameDate >= today && gameDate < tomorrow;
+                    });
+                }
 
                 resolve(games);
             }, 500);

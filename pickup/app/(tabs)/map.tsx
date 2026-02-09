@@ -7,6 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Location from "expo-location";
 import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
 import { GameWithDetails, GameFilter } from "@/objects/Game";
 import GameDetailsModal from "@/components/GameDetailsModal";
 import FilterModal from "@/components/FilterModal";
@@ -15,9 +16,9 @@ export default function MapTab() {
   const { colors } = useTheme();
   const server = useServer();
   const { user } = useAuth();
+  const { sharedFilters, setSharedFilters } = useData();
   const insets = useSafeAreaInsets();
   const [games, setGames] = useState<GameWithDetails[]>([]);
-  const [filters, setFilters] = useState<GameFilter | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameWithDetails | null>(null);
   const [userLocation, setUserLocation] = useState<{
@@ -32,9 +33,9 @@ export default function MapTab() {
   const fetchGames = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      let finalFilters: GameFilter = { ...(filters || {}) };
+      let finalFilters: GameFilter = { ...(sharedFilters || {}) };
 
-      if (filters?.favoriteOnly && user) {
+      if (sharedFilters?.favoriteOnly && user) {
         const favorites = await server.getFavouriteSports(user.id);
         const favoriteNames = favorites.map((sport) => sport.name);
         if (favoriteNames.length === 0) {
@@ -43,14 +44,15 @@ export default function MapTab() {
         }
 
         if (finalFilters.sport && finalFilters.sport.length > 0) {
-          finalFilters = {
-            ...finalFilters,
-            sport: finalFilters.sport.filter((name) => favoriteNames.includes(name)),
-          };
-          if (finalFilters.sport.length === 0) {
+          const filteredSports = finalFilters.sport.filter((name) => favoriteNames.includes(name));
+          if (filteredSports.length === 0) {
             setGames([]);
             return;
           }
+          finalFilters = {
+            ...finalFilters,
+            sport: filteredSports,
+          };
         } else {
           finalFilters = {
             ...finalFilters,
@@ -67,7 +69,7 @@ export default function MapTab() {
     } finally {
       setIsRefreshing(false);
     }
-  }, [server, filters, user]);
+  }, [server, sharedFilters, user]);
 
   // Request location and center map
   useEffect(() => {
@@ -181,10 +183,10 @@ export default function MapTab() {
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
         onApply={(newFilters) => {
-          setFilters(newFilters);
+          setSharedFilters(newFilters);
           setIsFilterVisible(false);
         }}
-        currentFilters={filters}
+        currentFilters={sharedFilters}
       />
 
       {isRefreshing && (

@@ -22,6 +22,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
     const [skillLevel, setSkillLevel] = useState<string[]>(currentFilters?.skillLevel || []);
     const [maxPlayers, setMaxPlayers] = useState<string | undefined>(currentFilters?.maxPlayers?.toString());
     const [favoriteOnly, setFavoriteOnly] = useState<boolean>(currentFilters?.favoriteOnly || false);
+    const [happeningToday, setHappeningToday] = useState<boolean>(currentFilters?.happeningToday || false);
 
     const [sports, setSports] = useState<string[]>([]);
     const [skillLevels, setSkillLevels] = useState<string[]>([]);
@@ -42,6 +43,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
             setSkillLevel(currentFilters?.skillLevel || []);
             setMaxPlayers(currentFilters?.maxPlayers?.toString());
             setFavoriteOnly(currentFilters?.favoriteOnly || false);
+            setHappeningToday(currentFilters?.happeningToday || false);
         }
     }, [visible, currentFilters]);
 
@@ -50,7 +52,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
             sport,
             skillLevel,
             maxPlayers: maxPlayers ? parseInt(maxPlayers) : undefined,
-            favoriteOnly
+            favoriteOnly,
+            happeningToday
         };
         // Clean up undefined values
         if (filters.sport && filters.sport.length === 0) delete filters.sport;
@@ -66,6 +69,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
         setSkillLevel([]);
         setMaxPlayers(undefined);
         setFavoriteOnly(false);
+        setHappeningToday(false);
         onApply({} as GameFilter); // modify this based on how clear should be handled
         onClose();
     };
@@ -108,6 +112,15 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                             <Switch
                                 value={favoriteOnly}
                                 onValueChange={setFavoriteOnly}
+                                trackColor={{ false: "#E0E0E0", true: "#007AFF" }}
+                                thumbColor={"#FFFFFF"}
+                            />
+                        </View>
+                        <View style={styles.favoriteRow}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Happening Today</Text>
+                            <Switch
+                                value={happeningToday}
+                                onValueChange={setHappeningToday}
                                 trackColor={{ false: "#E0E0E0", true: "#007AFF" }}
                                 thumbColor={"#FFFFFF"}
                             />

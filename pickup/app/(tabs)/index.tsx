@@ -6,6 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useData } from "@/contexts/DataContext";
 import { GameFilter, GameWithDetails } from "@/objects/Game";
 import FilterModal from "@/components/FilterModal";
 import SearchModal from "@/components/SearchModal";
@@ -25,10 +26,10 @@ export default function Index() {
   const { colors } = useTheme();
   const server = useServer();
   const { user } = useAuth();
+  const { sharedFilters, setSharedFilters } = useData();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const [games, setGames] = useState<GameWithDetails[]>([]);
-  const [filters, setFilters] = useState<GameFilter | null>(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [isCreateGameVisible, setIsCreateGameVisible] = useState(false);
@@ -40,7 +41,7 @@ export default function Index() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handleApplyFilters = (newFilters: GameFilter) => {
-    setFilters(newFilters);
+    setSharedFilters(newFilters);
   };
 
   const fetchGames = useCallback(async () => {
@@ -54,11 +55,11 @@ export default function Index() {
             }
           : {};
         let finalFilters: GameFilter = {
-          ...(filters || {}),
+          ...(sharedFilters || {}),
           ...locationFilters,
         };
 
-        if (filters?.favoriteOnly && user) {
+        if (sharedFilters?.favoriteOnly && user) {
           const favorites = await server.getFavouriteSports(user.id);
           const favoriteNames = favorites.map((sport) => sport.name);
           if (favoriteNames.length === 0) {
@@ -92,7 +93,7 @@ export default function Index() {
       } finally {
         setIsLoading(false);
       }
-  }, [server, filters, userLocation, user]);
+  }, [server, sharedFilters, userLocation, user]);
 
   const requestAndLoadLocation = useCallback(async () => {
     try {
@@ -206,7 +207,7 @@ export default function Index() {
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
         onApply={handleApplyFilters}
-        currentFilters={filters}
+        currentFilters={sharedFilters}
       />
 
       <SearchModal
