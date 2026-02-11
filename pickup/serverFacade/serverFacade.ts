@@ -54,7 +54,7 @@ export default interface ServerFacade {
         lng: Float | null;
     }): Promise<Game>;
 
-    getById(locationId: number): Promise<Location>;
+    getLocationById(locationId: number): Promise<Location>;
 
     getUserGroups(userId: number): Promise<Group[]>;
     getLastGroupMessage(groupId: number): Promise<GroupMessage | null>;
