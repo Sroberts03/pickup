@@ -1,11 +1,11 @@
-// server/ServerContext.ts
+// contexts/SocketContext.ts
 import { createContext, useContext } from 'react';
 import { WebSocketFacade } from '../websocket/websocket';
 
-export const WebsocketContext = createContext<WebSocketFacade | null>(null);
+export const SocketContext = createContext<WebSocketFacade | null>(null);
 
-export function useWebsocket() {
-  const facade = useContext(WebsocketContext);
+export function useSocket() {
+  const facade = useContext(SocketContext);
   if (!facade) throw new Error('WebSocketFacade not provided');
   return facade;
 }

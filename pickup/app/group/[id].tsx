@@ -9,11 +9,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import GroupMessage from '@/objects/GroupMessage';
 import User from '@/objects/User';
 import UserDetailsModal from '@/components/UserDetailsModal';
-import { useWebsocket } from '@/contexts/SocketContext';
-import { SocketState } from '@/websocket/websocket';
+import { useSocket } from '@/contexts/SocketContext';
 
 export default function GroupChatScreen() {
-    const websocket = useWebsocket();
+    const websocket = useSocket();
     const { id, name } = useLocalSearchParams();
     const groupId = Number(id);
     const { colors } = useTheme();
@@ -39,13 +38,6 @@ export default function GroupChatScreen() {
     }, [lastReadMessageId, messages, user]);
 
     const flatListRef = useRef<FlatList>(null);
-
-    useEffect(() => {
-        if (websocket && websocket.readyState === SocketState.CLOSED) {
-            console.log("Socket was closed, initiating connection...");
-            websocket.connect();
-        }
-    }, [websocket]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -103,62 +95,63 @@ export default function GroupChatScreen() {
         server.getGroupMembers(groupId).then(fetchedMembers => {
             setMembers(fetchedMembers.filter(m => m.id !== user?.id));
         });
+    }, [groupId, server, user]);
 
-        if (websocket) {
-            websocket.onmessage = (event: { data: any }) => {
-                try {
-                    // 1. Most WebSockets send strings; you must parse them
-                    const rawData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    // Set up WebSocket listeners and join group
+    useEffect(() => {
+        if (!websocket) return;
 
-                    // 2. Ensure the data matches your GroupMessage structure
-                    const newMessage = rawData as GroupMessage;
+        // Join the group when component mounts
+        websocket.joinGroup(groupId);
 
-                    if (newMessage.groupId === groupId) {
-                        setMessages(prev => [...prev, newMessage]);
+        // Set up event listeners
+        websocket.setEventListeners({
+            onNewMessage: (message) => {
+                if (message.groupId === groupId) {
+                    const gmsg = new GroupMessage(
+                        message.id,
+                        message.groupId,
+                        message.userId,
+                        message.content,
+                        new Date(message.sentAt)
+                    );
+                    setMessages(prev => [...prev, gmsg]);
 
-                        // 3. Use a functional update for the Map to avoid dependency loops
-                        setMessageUsers(prevMap => {
-                            if (!prevMap.has(newMessage.userId)) {
-                                // Fetch the user in the background if missing
-                                server.getUser(newMessage.userId).then(sender => {
-                                    if (sender) {
-                                        setMessageUsers(current => new Map(current).set(sender.id, sender));
-                                    }
-                                });
-                            }
-                            return prevMap;
-                        });
-                    }
-                } catch (e) {
-                    console.error("Error handling socket message:", e);
+                    // Fetch user if not already in map
+                    setMessageUsers(prevMap => {
+                        if (!prevMap.has(message.userId)) {
+                            server.getUser(message.userId).then(sender => {
+                                if (sender) {
+                                    setMessageUsers(current => new Map(current).set(sender.id, sender));
+                                }
+                            });
+                        }
+                        return prevMap;
+                    });
                 }
-            };
+            },
+            onError: (error) => {
+                console.error('WebSocket error:', error.message);
+            }
+        });
 
-            return () => {
-                websocket.onmessage = null;
-            };
-        }
-        // REMOVED messageUsers from dependencies to prevent infinite loops
-    }, [groupId, server, user, websocket]);
+        // Clean up: leave group and remove listeners
+        return () => {
+            websocket.leaveGroup(groupId);
+            websocket.removeEventListeners();
+        };
+    }, [groupId, websocket, server]);
 
     const handleSend = async () => {
         if (!inputText.trim() || sending || !websocket) return;
 
         const messageContent = inputText.trim();
 
-        // Prepare the payload based on what your server expects
-        const payload = JSON.stringify({
-            type: 'SEND_GROUP_MESSAGE',
-            groupId: groupId,
-            content: messageContent,
-            userId: user?.id,
-            sentAt: new Date().toISOString()
-        });
-
         try {
             setSending(true);
 
-            websocket.send(payload);
+            // Send message via Socket.io client
+            websocket.sendMessage(groupId, messageContent);
 
             setInputText("");
         } catch (error) {

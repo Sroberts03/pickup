@@ -1,135 +1,166 @@
-import { SocketState, WebSocketFacade } from './websocket';
-import GroupMessage from '../objects/GroupMessage';
+import { WebSocketFacade, SocketEventListeners, GroupMessage as SocketGroupMessage } from './websocket';
 import ServerFacade from '@/serverFacade/serverFacade';
-import TestServerFacade from '@/serverFacade/testServerFacade';
 
 export default class TestWebSocket implements WebSocketFacade {
-    readyState: SocketState = SocketState.CLOSED;
-    url: string;
     private serverFacade: ServerFacade;
+    private connected: boolean = false;
+    private listeners: SocketEventListeners = {};
+    private currentUserId?: number;
+    
+    // Map to store which groups the user has joined
+    private joinedGroups: Set<number> = new Set();
 
-    // Event Handlers
-    onopen: (() => void) | null = null;
-    onclose: ((event: { code: number; reason: string }) => void) | null = null;
-    onmessage: ((event: { data: any }) => void) | null = null;
-    onerror: ((error: any) => void) | null = null;
-
-    private groupMessageListeners: Map<number, Set<(message: GroupMessage) => void>> = new Map();
-
-    constructor(url: string, serverFacade: ServerFacade) {
-        this.url = url;
-        this.serverFacade = serverFacade || new TestServerFacade();
+    constructor(serverFacade: ServerFacade) {
+        this.serverFacade = serverFacade;
     }
 
-    connect() {
-        console.log(`[TestWebSocket] Connecting to ${this.url}...`);
-        this.readyState = SocketState.CONNECTING;
-
+    connect(token: string) {
+        console.log('[TestWebSocket] Connecting with token...');
+        
         // Simulate connection delay
         setTimeout(() => {
-            this.readyState = SocketState.OPEN;
+            this.connected = true;
             console.log('[TestWebSocket] Connected');
-            if (this.onopen) {
-                this.onopen();
-            }
+            this.listeners.onConnected?.();
         }, 500);
     }
 
-    close(code: number = 1000, reason: string = 'Normal Closure') {
-        console.log(`[TestWebSocket] Closing: ${code} - ${reason}`);
-        this.readyState = SocketState.CLOSING;
+    disconnect() {
+        console.log('[TestWebSocket] Disconnecting...');
+        this.connected = false;
+        this.joinedGroups.clear();
+        this.listeners.onDisconnected?.();
+    }
 
+    isConnected(): boolean {
+        return this.connected;
+    }
+
+    joinGroup(groupId: number) {
+        console.log(`[TestWebSocket] Joining group ${groupId}`);
+        
+        if (!this.connected) {
+            console.error('[TestWebSocket] Cannot join group - not connected');
+            return;
+        }
+
+        // Simulate async join
         setTimeout(() => {
-            this.readyState = SocketState.CLOSED;
-            console.log('[TestWebSocket] Closed');
-            if (this.onclose) {
-                this.onclose({ code, reason });
-            }
+            this.joinedGroups.add(groupId);
+            this.listeners.onJoinedGroup?.({
+                groupId,
+                message: 'Successfully joined group',
+            });
         }, 200);
     }
 
-    async send(data: string | ArrayBuffer | Blob) {
-        console.log('[TestWebSocket] Sending data:', data);
+    leaveGroup(groupId: number) {
+        console.log(`[TestWebSocket] Leaving group ${groupId}`);
+        
+        if (!this.connected) {
+            console.error('[TestWebSocket] Cannot leave group - not connected');
+            return;
+        }
 
-        if (typeof data === 'string') {
-            try {
-                const parsedRequest = JSON.parse(data);
+        // Simulate async leave
+        setTimeout(() => {
+            this.joinedGroups.delete(groupId);
+            this.listeners.onLeftGroup?.({
+                groupId,
+                message: 'Successfully left group',
+            });
+        }, 200);
+    }
 
-                if (parsedRequest.type === 'SEND_GROUP_MESSAGE') {
-                    const savedMessage = await this.serverFacade.sendGroupMessage(
-                        parsedRequest.groupId, 
-                        parsedRequest.content
-                    );
+    async sendMessage(groupId: number, content: string) {
+        console.log(`[TestWebSocket] Sending message to group ${groupId}:`, content);
 
-                    // B. BROADCAST the result back
-                    // Now we echo the *actual* saved database object (with ID and real timestamp)
-                    setTimeout(() => {
-                        console.log('[TestWebSocket] Simulating incoming message:', JSON.stringify(savedMessage));
-                        this.simulateMessage(JSON.stringify(savedMessage));
-                    }, 100);
-                }
-            } catch (e) {
-                console.error('[TestWebSocket] Failed to handle send:', e);
-            }
+        if (!this.connected) {
+            console.error('[TestWebSocket] Cannot send message - not connected');
+            this.listeners.onError?.({ message: 'Not connected' });
+            return;
+        }
+
+        if (!this.joinedGroups.has(groupId)) {
+            console.error('[TestWebSocket] Cannot send message - not in group');
+            this.listeners.onError?.({ message: 'Not a member of this group' });
+            return;
+        }
+
+        try {
+            // Save message through server facade
+            const savedMessage = await this.serverFacade.sendGroupMessage(groupId, content);
+
+            // Simulate receiving the message back (as the server would broadcast it)
+            setTimeout(() => {
+                console.log('[TestWebSocket] Simulating incoming message:', savedMessage);
+                this.listeners.onNewMessage?.({
+                    id: savedMessage.id,
+                    groupId: savedMessage.groupId,
+                    userId: savedMessage.userId,
+                    content: savedMessage.content,
+                    sentAt: savedMessage.sentAt.toISOString(),
+                });
+            }, 100);
+        } catch (error) {
+            console.error('[TestWebSocket] Failed to send message:', error);
+            const message = error instanceof Error ? error.message : 'Failed to send message';
+            this.listeners.onError?.({ message });
         }
     }
 
-    ping() {
-        console.log('[TestWebSocket] Ping');
+    sendTyping(groupId: number, isTyping: boolean) {
+        console.log(`[TestWebSocket] Sending typing status for group ${groupId}:`, isTyping);
+
+        if (!this.connected) {
+            console.error('[TestWebSocket] Cannot send typing - not connected');
+            return;
+        }
+
+        if (!this.joinedGroups.has(groupId)) {
+            console.error('[TestWebSocket] Cannot send typing - not in group');
+            return;
+        }
+
+        // In test mode, we don't really broadcast typing to others
+        // But we could simulate it if needed for testing
+    }
+
+    setEventListeners(listeners: SocketEventListeners) {
+        console.log('[TestWebSocket] Setting event listeners');
+        this.listeners = listeners;
+    }
+
+    removeEventListeners() {
+        console.log('[TestWebSocket] Removing event listeners');
+        this.listeners = {};
     }
 
     /**
-     * Helper method to simulate receiving a message from the server.
-     * Call this from your test code or debug UI to trigger an incoming message.
+     * Test helper method to simulate receiving a message from another user
      */
-    simulateMessage(data: any) {
-        console.log('[TestWebSocket] Simulating incoming message:', data);
-        if (this.readyState === SocketState.OPEN) {
-            console.log('[TestWebSocket] Dispatching message to onmessage handler');
-            // Ensure we are passing a string to the onmessage handler
-            // (The UI code parses JSON.parse(event.data), so we must pass a string)
-            const stringData = typeof data === 'string' ? data : JSON.stringify(data);
-
-            if (this.onmessage) {
-                console.log('[TestWebSocket] Simulating incoming message:', stringData);
-                this.onmessage({ data: stringData });
-            }
-
-            // Dispatch to internal listeners (if you use them elsewhere)
-            this.dispatchToListeners(stringData);
+    simulateIncomingMessage(message: SocketGroupMessage) {
+        console.log('[TestWebSocket] Simulating incoming message:', message);
+        if (this.connected) {
+            this.listeners.onNewMessage?.(message);
         }
     }
 
-    private dispatchToListeners(rawData: any) {
-        try {
-            const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
-            // Handle different message structures
-            const payload = (data.type === 'NEW_MESSAGE' && data.message) ? data.message : data;
-
-            // Check if it looks like a GroupMessage
-            if (payload && payload.groupId && payload.content) {
-                const message = new GroupMessage(
-                    payload.id,
-                    payload.groupId,
-                    payload.userId,
-                    payload.content,
-                    new Date(payload.sentAt)
-                );
-
-                const listeners = this.groupMessageListeners.get(payload.groupId);
-                if (listeners) {
-                    listeners.forEach(handler => handler(message));
-                }
-            }
-        } catch (e) {
-            console.error('[TestWebSocket] Error dispatching message:', e);
+    /**
+     * Test helper method to simulate typing from another user
+     */
+    simulateTyping(userId: number, groupId: number, isTyping: boolean) {
+        console.log(`[TestWebSocket] Simulating typing from user ${userId} in group ${groupId}:`, isTyping);
+        if (this.connected) {
+            this.listeners.onUserTyping?.({ userId, groupId, isTyping });
         }
     }
 
-    simulateError(error: any) {
-        console.log('[TestWebSocket] Simulating error:', error);
-        if (this.onerror) {
-            this.onerror(error);
-        }
+    /**
+     * Test helper method to simulate an error
+     */
+    simulateError(message: string) {
+        console.log('[TestWebSocket] Simulating error:', message);
+        this.listeners.onError?.({ message });
     }
 }

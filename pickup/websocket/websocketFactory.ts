@@ -1,11 +1,12 @@
 import TestWebsocket from './testWebsocket';
 import ServerFacade from '../serverFacade/serverFacade';
+import { createSocketClient } from './websocket';
 
 declare global {
   var testArguments: { useMocks?: boolean } | undefined;
 }
 
-export const getWebSocketFacade = (serverFacade?: ServerFacade) => {
+export const getWebSocketFacade = (serverFacade?: ServerFacade, token?: string) => {
     const isMockEnv = process.env.EXPO_PUBLIC_API_MODE === 'mock';
   
     const isTestingArgs = global.testArguments?.useMocks === true;
@@ -14,8 +15,10 @@ export const getWebSocketFacade = (serverFacade?: ServerFacade) => {
         if (!serverFacade) {
             throw new Error('ServerFacade instance is required for TestWebSocket');
         }
-       return new TestWebsocket('test://websocket', serverFacade);
+       return new TestWebsocket(serverFacade);
     }
 
-    throw new Error('No server facade implementation for the current mode.');
+    // Production mode - use real Socket.io client
+    const serverUrl = process.env.EXPO_PUBLIC_WEBSOCKET_URL || 'http://localhost:3000';
+    return createSocketClient(serverUrl);
 };
