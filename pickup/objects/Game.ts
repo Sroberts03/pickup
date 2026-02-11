@@ -59,9 +59,6 @@ export class Game {
 
 export interface GameFilter {
     sport?: string[];
-    location?: string;
-    date?: Date;
-    time?: string;
     skillLevel?: string[];
     maxPlayers?: number;
     latitude?: number;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Image, ActivityIndicator } from "react-native";
+import { Modal, View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from "react-native";
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
@@ -142,13 +142,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose, onGameSelec
                                     onPress={() => setSelectedUser(user)}
                                 >
                                     <View style={styles.userRow}>
-                                        <View style={[styles.avatar, { backgroundColor: colors.card }]}>
-                                            {user.profilePicUrl ? (
-                                                <Image source={{ uri: user.profilePicUrl }} style={styles.avatarImage} />
-                                            ) : (
-                                                <Feather name="user" size={20} color={colors.text} />
-                                            )}
-                                        </View>
                                         <View>
                                             <Text style={[styles.resultTitle, { color: colors.text }]}>{user.firstName} {user.lastName}</Text>
                                             <Text style={[styles.resultSubtitle, { color: colors.text + '99' }]}>{user.email}</Text>

@@ -65,8 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, [server]);
 
-  const signup = async (email: string, password: string, firstName: string, lastName: string, profilePicUrl: string) => {
-    const result = await server.signup(email, password, firstName, lastName, profilePicUrl);
+  const signup = async (email: string, password: string, firstName: string, lastName: string) => {
+    const result = await server.signup(email, password, firstName, lastName);
 
     await SecureStore.setItemAsync('authToken', result.token);
     setToken(result.token);
@@ -101,7 +101,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     firstName: string;
     lastName: string;
     email: string;
-    profilePicUrl: string;
   }>) => {
     if (!user) {
       throw new Error('No user logged in');

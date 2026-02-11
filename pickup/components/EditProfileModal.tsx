@@ -170,10 +170,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  profilePictureSection: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
   avatarContainer: {
     marginBottom: 15,
   },

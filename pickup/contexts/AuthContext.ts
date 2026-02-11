@@ -19,7 +19,6 @@ type AuthContextType = {
     firstName: string;
     lastName: string;
     email: string;
-    profilePicUrl: string;
   }>) => Promise<void>;
 };
 
