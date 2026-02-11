@@ -206,9 +206,6 @@ export default class TestServerFacade implements ServerFacade {
                         return sportName && filters.sport?.includes(sportName);
                     });
                 }
-                if (filters.location) {
-                    games = games.filter(game => this.locations.get(game.locationId)?.address === filters.location);
-                }
                 if (filters.skillLevel && filters.skillLevel.length > 0) {
                     games = games.filter(game => filters.skillLevel?.includes(game.skillLevel));
                 }

@@ -33,7 +33,7 @@ export default interface ServerFacade {
     }>): Promise<User>;
     getGamePlayers(gameId: number): Promise<User[]>;
     joinGame(gameId: number): Promise<void>;
-    leaveGame(gameId: number): Promise<void>;
+    leaveame(gameId: number): Promise<void>;
 
     getFavouriteSports(userId: number): Promise<Sport[]>;
     updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]>;
@@ -54,7 +54,7 @@ export default interface ServerFacade {
         lng: Float | null;
     }): Promise<Game>;
 
-    getLocationById(locationId: number): Promise<Location>;
+    getById(locationId: number): Promise<Location>;
 
     getUserGroups(userId: number): Promise<Group[]>;
     getLastGroupMessage(groupId: number): Promise<GroupMessage | null>;
