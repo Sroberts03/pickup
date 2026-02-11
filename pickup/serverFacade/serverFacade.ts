@@ -35,7 +35,7 @@ export default interface ServerFacade {
     getGamePlayers(gameId: number): Promise<User[]>;
     searchGames(query: string): Promise<GameWithDetails[]>;
     joinGame(gameId: number): Promise<void>;
-    leaveame(gameId: number): Promise<void>;
+    leaveGame(gameId: number): Promise<void>;
     createGame(gameData: {
         name: string;
         description: string;
