@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 
 function getSportImage(sportName: string): ImageSourcePropType {
-  const key = sportName.toLowerCase();
+  const key = sportName?.toLowerCase() || "";
   if (key.includes("basketball")) return require("../../assets/images/basketball.png");
   if (key.includes("soccer")) return require("../../assets/images/soccer.png");
   if (key.includes("football")) return require("../../assets/images/football.png");
