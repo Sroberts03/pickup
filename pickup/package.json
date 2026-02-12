@@ -14,7 +14,6 @@
     "lint": "expo lint",
     "maestro": "maestro test .maestro",
     "maestro:ios": "maestro test --platform=ios .maestro",
-    "maestro:login": "maestro test .maestro/login-flow.yaml",
     "maestro:studio": "maestro studio"
   },
   "dependencies": {

@@ -31,10 +31,17 @@ export default function Login() {
         <View style={styles.logoContainer}>
           <Image source={logo} style={styles.logo} />
         </View>
+        <View style={styles.loginTextContainer}>
+          <Text style={[styles.loginText, { color: colors.text }]}>
+            Welcome back! Please login to your account.
+          </Text>
+        </View>
+
         <View style={styles.form}>
           <TextInput 
             placeholder="Email" 
-            value={email} 
+            value={email}
+            testID='email-input' 
             onChangeText={setEmail} 
             style={[styles.input, { borderColor: colors.border, color: colors.text }]}
             placeholderTextColor={colors.text}
@@ -45,7 +52,8 @@ export default function Login() {
           <TextInput 
             placeholder="Password" 
             secureTextEntry 
-            value={password} 
+            value={password}
+            testID='password-input' 
             onChangeText={setPassword} 
             style={[styles.input, { borderColor: colors.border, color: colors.text }]}
             placeholderTextColor={colors.text}
@@ -63,8 +71,8 @@ export default function Login() {
             </Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.loginText}>Login</Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.button} testID='login-button'>
+          <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollView>
@@ -73,6 +81,15 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
+  loginTextContainer: {
+    alignItems: 'center', 
+    marginBottom: 20, 
+  },
+  loginText: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 20, 
+  },
   container: { 
     flex: 1,
   },
@@ -112,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 5, 
     alignItems: 'center'
   },
-  loginText: { 
+  loginButtonText: { 
     color: 'white', 
     fontWeight: 'bold' 
   },

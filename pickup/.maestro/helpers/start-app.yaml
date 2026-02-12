@@ -1,0 +1,12 @@
+appId: host.exp.Exponent
+---
+# Helper: Start App Only
+# Launches app and handles Expo Go picker (no login)
+# Import this: - runFlow: helpers/start-app.yaml
+
+- launchApp:
+    permissions:
+      location: always
+
+# Handle Expo Go project picker
+- tapOn: "pickup"

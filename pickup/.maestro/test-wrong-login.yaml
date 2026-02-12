@@ -1,0 +1,38 @@
+appId: host.exp.Exponent
+---
+# Login Test - Comprehensive
+# Tests successful login and validates navigation to home screen
+
+# ========================================
+# Step 1: Launch App and Navigate to Login
+# ========================================
+- launchApp:
+    permissions:
+      location: always
+
+# Handle Expo Go project picker
+- tapOn: "pickup"
+
+# Wait for login screen to load
+- assertVisible: "Welcome back! Please login to your account."
+
+# ========================================
+# Step 2: Test Invalid Login (Optional)
+# ========================================
+- tapOn:
+     id: "email-input"
+
+- inputText: "invalid@test.com"
+
+- hideKeyboard
+
+- tapOn:
+     id: "password-input"
+- inputText: "wrongpassword"
+
+- hideKeyboard
+
+- tapOn:
+     id: "login-button"
+
+- assertVisible: "Invalid email or password"

@@ -186,15 +186,15 @@ export default function Index() {
         }
       >
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.filterButton} onPress={() => setIsFilterVisible(true)}>
+          <TouchableOpacity style={styles.filterButton} onPress={() => setIsFilterVisible(true)} testID="filter-button">
             <Feather name="filter" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
           {lastUpdated && (
-          <Text style={[styles.timestampText, { color: colors.text, opacity: 0.6 }]}>
+          <Text style={[styles.timestampText, { color: colors.text, opacity: 0.6 }]} testID="last-updated-text">
             Last updated: {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
           )}
-          <TouchableOpacity style={styles.searchButton} onPress={() => setIsSearchVisible(true)}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => setIsSearchVisible(true)} testID="search-button">
             <Feather name="search" size={30} style={{ color: colors.text }} />
           </TouchableOpacity>
         </View>
@@ -205,7 +205,7 @@ export default function Index() {
           </View>
         ) : games.length === 0 ? (
           <View style={styles.emptyStateContainer}>
-            <Text style={[styles.emptyStateText, { color: colors.text }]}>No games in your area.</Text>
+            <Text style={[styles.emptyStateText, { color: colors.text }]} testID="empty-state-text">No games in your area.</Text>
           </View>
         ) : (
           <View style={styles.gamesContainer}>
@@ -215,6 +215,7 @@ export default function Index() {
                 style={[styles.gameContainer, { borderColor: colors.border }]}
                 onPress={() => setSelectedGame(game)}
                 activeOpacity={0.9}
+                testID={`game-${game.id}`}
               >
                 <View style={[styles.gameHeader, { backgroundColor: colors.card }]}>
                   <Text style={[styles.sportText, { color: colors.text }]}>{game.sportName}</Text>

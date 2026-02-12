@@ -1,0 +1,46 @@
+appId: host.exp.Exponent
+---
+# Helper: Login Flow
+# Reusable flow to launch app and login
+# Import this in other tests: - runFlow: helpers/login.yaml
+
+# Launch app with permissions
+- launchApp:
+    permissions:
+      location: always
+
+# Handle Expo Go project picker
+- tapOn: "pickup"
+
+# Wait for login screen
+- assertVisible: "Welcome back! Please login to your account."
+
+# Enter credentials
+- tapOn:
+    id: "email-input"
+- inputText: "test-user@example.com"
+- hideKeyboard
+
+- tapOn:
+    id: "password-input"
+- inputText: "testpassword123"
+- hideKeyboard
+
+# Submit login
+- tapOn:
+    id: "login-button"
+
+# Dismiss password save dialog
+- tapOn:
+    text: "Not Now"
+    optional: true
+
+# Handle location permission dialog
+- tapOn:
+    text: "Allow While Using App"
+    optional: true
+
+# Dismiss any error overlays
+- tapOn:
+    text: "Dismiss"
+    optional: true
