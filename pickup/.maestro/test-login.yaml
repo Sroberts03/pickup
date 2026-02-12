@@ -1,58 +1,8 @@
 appId: com.samroberts.pickup
 ---
-# Login Test - Comprehensive
-# Tests successful login and validates navigation to home screen
 
-# ========================================
-# Step 1: Launch App and Navigate to Login
-# ========================================
 - launchApp:
     permissions:
       location: always
 
-# Wait for login screen to load
-- assertVisible: "Welcome back! Please login to your account."
-
-# ========================================
-# Step 2: Perform Valid Login
-# ========================================
-# Using testIDs is more reliable than text
-- tapOn:
-    id: "email-input"
-- inputText: "test-user@example.com"
-
-- scroll
-
-- tapOn:
-    id: "password-input"
-- inputText: "testpassword123"
-
-# Dismiss the keyboard
-- scroll
-
-- tapOn:
-    id: "login-button"
-
-# Dismiss iOS password save dialog (if it appears)
-- tapOn:
-    text: "Not Now"
-    optional: true
-
-# Handle location permission prompt (iOS will ask for location)
-- tapOn:
-    text: "Allow While Using App"
-    optional: true
-
-# Dismiss any error overlays (location errors in simulator)
-- tapOn:
-    text: "Dismiss"
-    optional: true
-
-- waitForAnimationToEnd:
-    timeout: 5000
-
-- assertVisible:
-    id: "filter-button"
-# ========================================
-# Success!
-# ========================================
+- runFlow: helpers/login.yaml

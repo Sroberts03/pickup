@@ -11,11 +11,13 @@ appId: com.samroberts.pickup
 - tapOn:
     id: "email-input"
 - inputText: "test-user@example.com"
+
 - scroll
 
 - tapOn:
     id: "password-input"
 - inputText: "testpassword123"
+
 - scroll
 
 # Submit login
@@ -36,3 +38,7 @@ appId: com.samroberts.pickup
 - tapOn:
     text: "Dismiss"
     optional: true
+
+# Wait for home screen to ensure login is complete
+- assertVisible:
+    id: "filter-button"
