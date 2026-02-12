@@ -2,5 +2,5 @@
 # Common settings for test execution
 
 env:
-  APP_ID: host.exp.Exponent
+  APP_ID: com.samroberts.pickup
   TIMEOUT: 10000

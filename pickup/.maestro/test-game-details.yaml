@@ -1,1 +1,9 @@
-- runflow: helpers/login.yaml
+appId: com.samroberts.pickup
+---
+
+- launchApp:
+    permissions:
+      location: always
+
+# login
+- runFlow: helpers/login.yaml

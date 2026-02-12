@@ -1,16 +1,8 @@
-appId: host.exp.Exponent
+appId: com.samroberts.pickup
 ---
 # Helper: Login Flow
-# Reusable flow to launch app and login
-# Import this in other tests: - runFlow: helpers/login.yaml
-
-# Launch app with permissions
-- launchApp:
-    permissions:
-      location: always
-
-# Handle Expo Go project picker
-- tapOn: "pickup"
+# Reusable flow for login (expects app already launched)
+# Import this in other tests after launchApp: - runFlow: helpers/login.yaml
 
 # Wait for login screen
 - assertVisible: "Welcome back! Please login to your account."

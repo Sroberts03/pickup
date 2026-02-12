@@ -1,4 +1,4 @@
-appId: host.exp.Exponent
+appId: com.samroberts.pickup
 ---
 # Login Test - Comprehensive
 # Tests successful login and validates navigation to home screen
@@ -10,9 +10,6 @@ appId: host.exp.Exponent
     permissions:
       location: always
 
-# Handle Expo Go project picker
-- tapOn: "pickup"
-
 # Wait for login screen to load
 - assertVisible: "Welcome back! Please login to your account."
 
@@ -20,18 +17,6 @@ appId: host.exp.Exponent
 # Step 2: Perform Valid Login
 # ========================================
 # Using testIDs is more reliable than text
-- tapOn:
-    id: "email-input"
-- inputText: ""
-
-- hideKeyboard
-
-- tapOn:
-    id: "password-input"
-- inputText: ""
-
-- hideKeyboard
-
 - tapOn:
     id: "email-input"
 - inputText: "test-user@example.com"
