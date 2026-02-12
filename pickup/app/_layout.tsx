@@ -6,7 +6,7 @@ import { ServerContext } from "../contexts/ServerContext";
 import { AuthProvider } from '../auth/AuthProvider';
 import { useAuth } from "@/contexts/AuthContext";
 import React, { useEffect } from "react";
-import { getServerFacade } from "@/serverFacade/serverFactory";
+import { getServerFacade } from "@/server-facade/serverFactory";
 import { DataProvider } from "@/contexts/DataContext";
 import { SocketProvider } from "@/contexts/SocketProvider";
 

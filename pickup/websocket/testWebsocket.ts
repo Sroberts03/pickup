@@ -1,5 +1,5 @@
 import { WebSocketFacade, SocketEventListeners, GroupMessage as SocketGroupMessage } from './websocket';
-import ServerFacade from '@/serverFacade/serverFacade';
+import ServerFacade from '@/server-facade/serverFacade';
 
 export default class TestWebSocket implements WebSocketFacade {
     private serverFacade: ServerFacade;

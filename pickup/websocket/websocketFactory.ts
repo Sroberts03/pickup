@@ -1,5 +1,5 @@
 import TestWebsocket from './testWebsocket';
-import ServerFacade from '../serverFacade/serverFacade';
+import ServerFacade from '../server-facade/serverFacade';
 import { createSocketClient } from './websocket';
 
 declare global {

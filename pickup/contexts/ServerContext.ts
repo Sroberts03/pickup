@@ -1,8 +1,8 @@
 // server/ServerContext.ts
 import { createContext, useContext } from 'react';
-import ServerFacade from '../serverFacade/serverFacade';
+import ServerFacadeRouter from '../server-facade/ServerFacadeRouter';
 
-export const ServerContext = createContext<ServerFacade | null>(null);
+export const ServerContext = createContext<ServerFacadeRouter | null>(null);
 
 export function useServer() {
   const facade = useContext(ServerContext);
