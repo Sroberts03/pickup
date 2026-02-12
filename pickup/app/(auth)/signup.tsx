@@ -34,13 +34,14 @@ export default function SignupPage() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
             <View>
-                <Text style={[styles.title, { color: colors.text }]}>Sign Up</Text>
+                <Text style={[styles.title, { color: colors.text }]} testID="sign-up-text">Sign Up</Text>
             </View>
             <View style={styles.logoContainer}>
-                <Image source={logo} style={styles.logo} />
+                <Image source={logo} style={styles.logo} testID="signup-logo" />
             </View>
             <View style={styles.form}>
                 <TextInput 
+                    testID="firstname-input"
                     placeholder="First Name" 
                     value={firstName} 
                     onChangeText={setFirstName}
@@ -48,6 +49,7 @@ export default function SignupPage() {
                     placeholderTextColor={colors.text}
                 />
                 <TextInput 
+                    testID="lastname-input"
                     placeholder="Last Name" 
                     value={lastName} 
                     onChangeText={setLastName}
@@ -55,6 +57,7 @@ export default function SignupPage() {
                     placeholderTextColor={colors.text}
                 />
                 <TextInput 
+                    testID="signup-email-input"
                     placeholder="Email" 
                     value={email} 
                     onChangeText={setEmail}
@@ -63,6 +66,7 @@ export default function SignupPage() {
                     keyboardType="email-address"
                 />
                 <TextInput 
+                    testID="signup-password-input"
                     placeholder="Password" 
                     value={password} 
                     onChangeText={setPassword}
@@ -72,19 +76,19 @@ export default function SignupPage() {
                 />
             </View>
             <View style={styles.loginTextContainer}>
-                <Text style={[styles.loginText, { color: colors.text }]}>
+                <Text style={[styles.loginText, { color: colors.text }]} testID="already-have-account-text">
                     Already have an account?
                 </Text>
-                <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+                <TouchableOpacity testID="go-to-login-button" onPress={() => router.push('/(auth)/login')}>
                     <Text style={[styles.loginLink, { color: '#007AFF' }]}>
                         Login.
                     </Text>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <TouchableOpacity testID="signup-button" style={styles.button} onPress={handleSignup}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
-            {error && <Text style={styles.error}>{error}</Text>}
+            {error && <Text testID="signup-error-text" style={styles.error}>{error}</Text>}
             <View style={styles.termsContainer}>
                 <Text style={[styles.termsText, { color: colors.text }]}>
                     By signing up, you agree to our{' '}

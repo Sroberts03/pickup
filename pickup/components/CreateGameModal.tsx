@@ -164,10 +164,10 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity testID="close-create-game-modal" onPress={onClose} style={styles.closeButton}>
             <Feather name="x" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>CREATE GAME</Text>
+          <Text testID="create-game-title" style={[styles.headerTitle, { color: colors.text }]}>CREATE GAME</Text>
           <View style={styles.placeholder} />
         </View>
 
@@ -175,6 +175,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Name</Text>
             <TextInput
+              testID="game-name-input"
               style={[styles.input, { backgroundColor: '#E5E5E5', color: '#333' }]}
               value={name}
               onChangeText={setName}
@@ -186,6 +187,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Description</Text>
             <TextInput
+              testID="game-description-input"
               style={[styles.input, { backgroundColor: '#E5E5E5', color: '#333' }]}
               value={description}
               onChangeText={setDescription}
@@ -198,6 +200,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Start Time</Text>
             <TouchableOpacity
+              testID="start-time-picker"
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowStartTimePicker(true)}
             >
@@ -210,6 +213,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>End Time</Text>
             <TouchableOpacity
+              testID="end-time-picker"
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowEndTimePicker(true)}
             >
@@ -270,6 +274,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
             <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
               <Text style={[styles.label, { color: colors.text }]}>Max Players</Text>
               <TextInput
+                testID="max-players-input"
                 style={[styles.input, { backgroundColor: '#E5E5E5', color: '#333' }]}
                 value={maxPlayers}
                 onChangeText={setMaxPlayers}
@@ -282,6 +287,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
             <View style={[styles.inputGroup, { flex: 2, marginLeft: 8 }]}>
               <Text style={[styles.label, { color: colors.text }]}>Skill Level</Text>
               <TouchableOpacity
+                testID="skill-level-picker"
                 style={[styles.input, { backgroundColor: '#E5E5E5' }]}
                 onPress={() => setShowSkillLevelPicker(true)}
               >
@@ -293,6 +299,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Rules</Text>
             <TextInput
+              testID="game-rules-input"
               style={[styles.largeInput, { backgroundColor: '#E5E5E5', color: '#333' }]}
               value={rules}
               onChangeText={setRules}
@@ -305,6 +312,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: colors.text }]}>Sport</Text>
             <TouchableOpacity
+              testID="sport-picker"
               style={[styles.input, { backgroundColor: '#E5E5E5' }]}
               onPress={() => setShowSportPicker(true)}
             >
@@ -313,6 +321,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
           </View>
 
           <TouchableOpacity
+            testID="create-game-submit-button"
             style={[styles.createButton, { opacity: isLoading ? 0.5 : 1 }]}
             onPress={handleCreateGame}
             disabled={isLoading}

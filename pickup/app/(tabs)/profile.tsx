@@ -43,7 +43,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header with Settings */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setShowSettings(true)}>
+          <TouchableOpacity testID="settings-button" onPress={() => setShowSettings(true)}>
             <Ionicons name="settings-outline" size={28} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -52,14 +52,14 @@ export default function ProfileScreen() {
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             {userAvatar ? (
-              <Image source={{ uri: userAvatar }} style={styles.avatar} />
+              <Image testID="profile-avatar" source={{ uri: userAvatar }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatarPlaceholder, { backgroundColor: "#E0E0E0" }]}>
                 <Ionicons name="person-outline" size={60} color="#757575" />
               </View>
             )}
           </View>
-          <Text style={[styles.name, { color: colors.text }]}>{user.firstName} {user.lastName}</Text>
+          <Text testID="profile-name" style={[styles.name, { color: colors.text }]}>{user.firstName} {user.lastName}</Text>
         </View>
 
         {loading ? (
@@ -70,10 +70,10 @@ export default function ProfileScreen() {
           <>
             {/* Favorite Sports */}
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>favorite sports</Text>
+              <Text testID="favorite-sports-title" style={[styles.sectionTitle, { color: colors.text }]}>favorite sports</Text>
               <View style={styles.pillsContainer}>
                 {favoriteSports.map((sport) => (
-                  <View key={sport.id} style={styles.pill}>
+                  <View key={sport.id} testID={`sport-pill-${sport.name.toLowerCase()}`} style={styles.pill}>
                     <Ionicons name={getSportIcon(sport.name) as any} size={16} color="#000" style={styles.pillIcon} />
                     <Text style={styles.pillText}>{sport.name}</Text>
                   </View>
@@ -84,18 +84,18 @@ export default function ProfileScreen() {
             {/* Quick Stats */}
             {stats && (
               <View style={styles.section}>
-                 <Text style={[styles.sectionTitle, { color: colors.text }]}>quick stats</Text>
+                 <Text testID="quick-stats-title" style={[styles.sectionTitle, { color: colors.text }]}>quick stats</Text>
                  <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
-                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesPlayed}</Text>
+                      <Text testID="games-joined-value" style={[styles.statValue, { color: colors.text }]}>{stats.gamesPlayed}</Text>
                       <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Joined</Text>
                     </View>
                     <View style={[styles.statItem, styles.statBorder]}>
-                      <Text style={[styles.statValue, { color: colors.text }]}>{stats.gamesOrganized}</Text>
+                      <Text testID="games-organized-value" style={[styles.statValue, { color: colors.text }]}>{stats.gamesOrganized}</Text>
                       <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Games Organized</Text>
                     </View>
                     <View style={styles.statItem}>
-                      <Text style={[styles.statValue, { color: colors.text }]}>{user.joinedYear}</Text>
+                      <Text testID="member-since-value" style={[styles.statValue, { color: colors.text }]}>{user.joinedYear}</Text>
                       <Text style={[styles.statLabel, { color: colors.text, opacity: 0.7 }]}>Member Since</Text>
                     </View>
                  </View>

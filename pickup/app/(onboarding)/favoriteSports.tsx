@@ -85,7 +85,7 @@ export default function FavoriteSportsOnboarding() {
     >
       <View style={styles.header}>
         <View style={styles.placeholder} />
-        <Text style={[styles.headerTitle, { color: colors.text }]}>FAVORITE SPORTS</Text>
+        <Text testID="favorite-sports-header" style={[styles.headerTitle, { color: colors.text }]}>FAVORITE SPORTS</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -102,6 +102,7 @@ export default function FavoriteSportsOnboarding() {
               return (
                 <TouchableOpacity
                   key={sport.id}
+                  testID={`sport-pill-${sport.name.toLowerCase()}`}
                   style={[
                     styles.pill,
                     isSelected ? styles.pillSelected : styles.pillUnselected,
@@ -125,6 +126,7 @@ export default function FavoriteSportsOnboarding() {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
+          testID="save-favorite-sports-button"
           style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
           onPress={handleSave}
           disabled={isSaving}

@@ -187,15 +187,16 @@ export default function MyGamesScreen() {
           <View style={styles.gamesContainer}>
             {groupGamesBySection().length === 0 ? (
               <View style={styles.emptyContainer}>
-                <Text style={[styles.emptyText, { color: colors.text }]}>You haven&apos;t joined any games yet</Text>
+                <Text testID="my-games-empty-state" style={[styles.emptyText, { color: colors.text }]}>You haven&apos;t joined any games yet</Text>
               </View>
             ) : (
               groupGamesBySection().map((section) => (
                 <View 
                   key={section.title} 
+                  testID={`section-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
                   ref={section.isToday ? todaySectionRef : null}
                 >
-                  <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
+                  <Text testID={`section-title-${section.title.toLowerCase().replace(/\s+/g, '-')}`} style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
                   {section.games.map(({ date, time, game }) => (
                     <View key={game.id} style={styles.gameSection}>
                       <View style={styles.dateTimeSection}>
@@ -204,6 +205,7 @@ export default function MyGamesScreen() {
                       </View>
                       
                       <TouchableOpacity
+                        testID={`my-game-card-${game.id}`}
                         style={[styles.gameCard, { borderColor: colors.border }]}
                         onPress={() => setSelectedGame(game)}
                         activeOpacity={0.9}

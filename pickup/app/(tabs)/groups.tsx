@@ -97,6 +97,7 @@ export default function GroupsScreen() {
     
     return (
       <TouchableOpacity 
+        testID={`group-item-${group.id}`}
         style={styles.itemContainer}
         onPress={() => router.push({
           pathname: '/group/[id]',
@@ -109,11 +110,11 @@ export default function GroupsScreen() {
         />
         <View style={[styles.textContainer, { borderBottomColor: colors.border }]}>
           <View style={styles.headerRow}>
-            <Text style={[styles.groupName, { color: colors.text }]} numberOfLines={1}>
+            <Text testID={`group-name-${group.id}`} style={[styles.groupName, { color: colors.text }]} numberOfLines={1}>
               {group.name}
             </Text>
             <View style={styles.metaRow}>
-              {isUnread && <View style={styles.unreadDot} />}
+              {isUnread && <View testID={`unread-indicator-${group.id}`} style={styles.unreadDot} />}
               <Text style={[styles.timeText, { color: colors.text }]}>{dateStr}</Text>
             </View>
           </View>

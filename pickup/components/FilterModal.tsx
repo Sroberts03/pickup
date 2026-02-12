@@ -100,8 +100,8 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
             <View style={styles.centeredView}>
                 <View style={[styles.modalView, { backgroundColor: colors.card }]}>
                     <View style={styles.header}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>Filter Games</Text>
-                        <TouchableOpacity onPress={onClose}>
+                        <Text testID="filter-modal-title" style={[styles.modalTitle, { color: colors.text }]}>Filter Games</Text>
+                        <TouchableOpacity testID="close-filter-modal" onPress={onClose}>
                             <Feather name="x" size={24} color={colors.text} />
                         </TouchableOpacity>
                     </View>
@@ -110,6 +110,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                         <View style={styles.favoriteRow}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>Favorite Sports Only</Text>
                             <Switch
+                                testID="favorite-only-switch"
                                 value={favoriteOnly}
                                 onValueChange={setFavoriteOnly}
                                 trackColor={{ false: "#E0E0E0", true: "#007AFF" }}
@@ -119,6 +120,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                         <View style={styles.favoriteRow}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>Happening Today</Text>
                             <Switch
+                                testID="happening-today-switch"
                                 value={happeningToday}
                                 onValueChange={setHappeningToday}
                                 trackColor={{ false: "#E0E0E0", true: "#007AFF" }}
@@ -130,6 +132,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                             {sports.map((s) => (
                                 <TouchableOpacity
                                     key={s}
+                                    testID={`filter-sport-${s.toLowerCase()}`}
                                     style={[
                                         styles.pill,
                                         sport.includes(s) && styles.activePill,
@@ -151,6 +154,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                             {skillLevels.map((sl) => (
                                 <TouchableOpacity
                                     key={sl}
+                                    testID={`filter-skill-${sl.toLowerCase().replace(/\s+/g, '-')}`}
                                     style={[
                                         styles.pill,
                                         skillLevel.includes(sl) && styles.activePill,
@@ -169,6 +173,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
 
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Max Players</Text>
                         <TextInput
+                            testID="filter-max-players-input"
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             placeholder="e.g. 10"
                             placeholderTextColor={colors.text + '80'}
@@ -179,10 +184,10 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
                     </ScrollView>
 
                     <View style={styles.footer}>
-                        <TouchableOpacity style={[styles.button, styles.clearButton]} onPress={handleClear}>
+                        <TouchableOpacity testID="filter-clear-button" style={[styles.button, styles.clearButton]} onPress={handleClear}>
                             <Text style={styles.clearButtonText}>Clear</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, styles.applyButton]} onPress={handleApply}>
+                        <TouchableOpacity testID="filter-apply-button" style={[styles.button, styles.applyButton]} onPress={handleApply}>
                             <Text style={styles.applyButtonText}>Apply Filters</Text>
                         </TouchableOpacity>
                     </View>

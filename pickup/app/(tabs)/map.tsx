@@ -169,6 +169,7 @@ export default function MapTab() {
       )}
 
       <TouchableOpacity
+        testID="map-filter-button"
         style={[
           styles.filterButton,
           { 

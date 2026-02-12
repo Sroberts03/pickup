@@ -277,6 +277,7 @@ export default function Index() {
 
       {/* Floating Action Button */}
       <TouchableOpacity
+        testID="create-game-fab"
         style={[styles.fab, { bottom: insets.bottom + tabBarHeight + 20 }]}
         onPress={() => setIsCreateGameVisible(true)}
         activeOpacity={0.8}
