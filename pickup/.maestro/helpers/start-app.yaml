@@ -1,9 +1,0 @@
-appId: com.samroberts.pickup
----
-# Helper: Start App Only
-# Launches app with permissions (no login)
-# Import this: - runFlow: helpers/start-app.yaml
-
-- launchApp:
-    permissions:
-      location: always
