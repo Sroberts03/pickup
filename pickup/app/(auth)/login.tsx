@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const logo = require('@/assets/images/pickup.png'); 
@@ -27,8 +27,12 @@ export default function Login() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={styles.logoContainer}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoContainer}>
           <Image source={logo} style={styles.logo} />
         </View>
         <View style={styles.loginTextContainer}>
@@ -75,7 +79,8 @@ export default function Login() {
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
@@ -98,8 +103,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   logo: { 
-    width: 400, 
-    height: 400, 
+    width: 300, 
+    height: 300, 
     resizeMode: 'contain' 
   },
   form: { 

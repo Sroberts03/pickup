@@ -7,3 +7,8 @@ appId: com.samroberts.pickup
 
 # login
 - runFlow: helpers/login.yaml
+
+- tapOn:
+    id: "game-2"
+
+

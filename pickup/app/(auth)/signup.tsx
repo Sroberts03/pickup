@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from 'expo-router';
 
 const logo = require('@/assets/images/pickup.png'); 
@@ -32,7 +32,14 @@ export default function SignupPage() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        style={{ flex: 1 }}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
             <View>
                 <Text style={[styles.title, { color: colors.text }]} testID="sign-up-text">Sign Up</Text>
             </View>
@@ -98,6 +105,7 @@ export default function SignupPage() {
                 </Text>
             </View>
         </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
