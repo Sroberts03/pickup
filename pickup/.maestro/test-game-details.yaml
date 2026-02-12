@@ -1,6 +1,5 @@
 appId: com.samroberts.pickup
 ---
-
 - launchApp:
     permissions:
       location: always
@@ -11,4 +10,13 @@ appId: com.samroberts.pickup
 - tapOn:
     id: "game-2"
 
+- assertVisible:
+    text: "BASKETBALL"
 
+- assertVisible:
+    text: "Friday Basketball"
+
+- scroll
+
+- assertVisible:
+    text: "7 SPOTS LEFT"

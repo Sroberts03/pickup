@@ -7,8 +7,8 @@ appId: com.samroberts.pickup
 # Step 1: Launch App and Navigate to Login
 # ========================================
 - launchApp:
-    permissions:
-      location: always
+     permissions:
+        location: always
 
 # Wait for login screen to load
 - assertVisible: "Welcome back! Please login to your account."
@@ -21,13 +21,13 @@ appId: com.samroberts.pickup
 
 - inputText: "invalid@test.com"
 
-- hideKeyboard
+- scroll
 
 - tapOn:
      id: "password-input"
 - inputText: "wrongpassword"
 
-- hideKeyboard
+- scroll
 
 - tapOn:
      id: "login-button"

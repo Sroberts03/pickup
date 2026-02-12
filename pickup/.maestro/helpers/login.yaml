@@ -11,12 +11,12 @@ appId: com.samroberts.pickup
 - tapOn:
     id: "email-input"
 - inputText: "test-user@example.com"
-- hideKeyboard
+- scroll
 
 - tapOn:
     id: "password-input"
 - inputText: "testpassword123"
-- hideKeyboard
+- scroll
 
 # Submit login
 - tapOn:

@@ -21,14 +21,14 @@ appId: com.samroberts.pickup
     id: "email-input"
 - inputText: "test-user@example.com"
 
-- hideKeyboard
+- scroll
 
 - tapOn:
     id: "password-input"
 - inputText: "testpassword123"
 
 # Dismiss the keyboard
-- hideKeyboard
+- scroll
 
 - tapOn:
     id: "login-button"
@@ -48,13 +48,11 @@ appId: com.samroberts.pickup
     text: "Dismiss"
     optional: true
 
-
 - waitForAnimationToEnd:
     timeout: 5000
 
 - assertVisible:
     id: "filter-button"
-
 # ========================================
 # Success!
 # ========================================
