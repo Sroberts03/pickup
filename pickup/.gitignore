@@ -43,3 +43,9 @@ app-example
 /android
 
 .env
+
+# Maestro
+.maestro/recordings/
+.maestro/screenshots/
+.maestro/.maestro/
+maestro-report/

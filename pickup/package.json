@@ -11,7 +11,11 @@
     "ios": "xcrun simctl boot 60C63872-D1B3-4DEA-912C-D3D2FD76E9BE && expo start --ios",
     "test_ios": "xcrun simctl boot 60C63872-D1B3-4DEA-912C-D3D2FD76E9BE && EXPO_PUBLIC_API_MODE=mock expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "maestro": "maestro test .maestro",
+    "maestro:ios": "maestro test --platform=ios .maestro",
+    "maestro:login": "maestro test .maestro/login-flow.yaml",
+    "maestro:studio": "maestro studio"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

@@ -1,0 +1,6 @@
+# Maestro Configuration
+# Common settings for test execution
+
+env:
+  APP_ID: host.exp.Exponent
+  TIMEOUT: 10000
