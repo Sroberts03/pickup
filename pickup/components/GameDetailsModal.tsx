@@ -162,7 +162,7 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
         >
             <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={onClose} style={styles.backButton}>
+                    <TouchableOpacity onPress={onClose} style={styles.backButton} testID="back-button">
                         <Feather name="chevron-left" size={30} color={colors.text} />
                     </TouchableOpacity>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>{game.sportName.toUpperCase()}</Text>

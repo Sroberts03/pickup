@@ -1,0 +1,46 @@
+appId: com.samroberts.pickup
+---
+- launchApp:
+    permissions:
+      location: always
+
+- runFlow: helpers/login.yaml
+
+- tapOn:
+    id: "game-2"
+
+- assertVisible:
+    text: "JOIN"
+
+- tapOn:
+    text: "JOIN"
+
+- assertVisible:
+    text: "LEAVE"
+
+- tapOn:
+    id: "back-button"
+
+- tapOn: My Games, tab, 3 of 5
+
+
+- scroll
+
+- assertVisible:
+    id: "my-game-card-2"
+
+- tapOn:
+    id: 'my-game-card-2'
+
+- tapOn: 
+    text: "LEAVE"
+
+- assertVisible:
+    text: "JOIN"
+
+- tapOn:
+    id: "back-button"
+
+- assertNotVisible:
+    id: "my-game-card-2"
+
