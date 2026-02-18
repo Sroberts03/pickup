@@ -4,7 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme } from "@react-navigation/native";
 import { useServer } from "@/contexts/ServerContext";
 import { GameWithDetails } from "@/objects/Game";
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import User from "@/objects/User";
 import Location from "@/objects/Location";
 import { useAuth } from "@/contexts/AuthContext";
