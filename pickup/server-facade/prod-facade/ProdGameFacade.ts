@@ -9,7 +9,7 @@ export default class ProdGameFacade implements GameFacade {
     private baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + "/game";
     }
     
     async getGames(filters?: GameFilter): Promise<Game[]> {
@@ -25,7 +25,7 @@ export default class ProdGameFacade implements GameFacade {
             if (filters.favoriteOnly) params.append('favoriteOnly', filters.favoriteOnly.toString());
             if (filters.happeningToday) params.append('happeningToday', filters.happeningToday.toString());
         }
-        const response = await fetch(`${this.baseUrl}/game/games?${params.toString()}`, {
+        const response = await fetch(`${this.baseUrl}/games?${params.toString()}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -50,7 +50,7 @@ export default class ProdGameFacade implements GameFacade {
             if (filters.favoriteOnly) params.append('favoriteOnly', filters.favoriteOnly.toString());
             if (filters.happeningToday) params.append('happeningToday', filters.happeningToday.toString());
         }
-        const response = await fetch(`${this.baseUrl}/game/games/details?${params.toString()}`, {
+        const response = await fetch(`${this.baseUrl}/games/details?${params.toString()}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -64,7 +64,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getGamePlayerCount(gameId: number): Promise<number> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/playerCount/${gameId}`, {
+        const response = await fetch(`${this.baseUrl}/playerCount/${gameId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -78,7 +78,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getGamePlayers(gameId: number): Promise<User[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/players/${gameId}`, {
+        const response = await fetch(`${this.baseUrl}/players/${gameId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -92,7 +92,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async searchGames(query: string): Promise<GameWithDetails[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/search?query=${encodeURIComponent(query)}`, {
+        const response = await fetch(`${this.baseUrl}/search?query=${encodeURIComponent(query)}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -106,7 +106,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async joinGame(gameId: number): Promise<void> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/join`, {
+        const response = await fetch(`${this.baseUrl}/join`, {
             method: "POST",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -119,7 +119,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async leaveGame(gameId: number): Promise<void> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/leave`, {
+        const response = await fetch(`${this.baseUrl}/leave`, {
             method: "PUT",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -132,7 +132,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async createGame(gameData: { name: string; description: string; sportId: number; startTime: Date; endTime: Date; maxPlayers: number; skillLevel: string; rules: string; address: string; placeId: string; lat: Float | null; lng: Float | null; }): Promise<Game> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/create`, {
+        const response = await fetch(`${this.baseUrl}/create`, {
             method: "POST",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -160,7 +160,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getSport(sportId: number): Promise<Sport> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/sport/${sportId}`, {
+        const response = await fetch(`${this.baseUrl}/sport/${sportId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -174,7 +174,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getAllSports(): Promise<Sport[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/sports/all`, {
+        const response = await fetch(`${this.baseUrl}/sports/all`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -188,7 +188,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getPossibleSports(): Promise<string[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/sports/all/names`, {
+        const response = await fetch(`${this.baseUrl}/sports/all/names`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -202,7 +202,7 @@ export default class ProdGameFacade implements GameFacade {
 
     async getPossibleSkillLevels(): Promise<string[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/game/skillLevels`, {
+        const response = await fetch(`${this.baseUrl}/skillLevels`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",

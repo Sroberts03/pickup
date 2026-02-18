@@ -6,13 +6,13 @@ export default class ProdAuthFacade implements AuthFacade {
     private baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + "/auth";
     }
     
     async getCurrentUser(): Promise<{ token: string; user: User; } | null> {
         const token = await SecureStore.getItemAsync("authToken");
         if (!token) return null;
-        const response = await fetch(`${this.baseUrl}/auth/currentUser`, {
+        const response = await fetch(`${this.baseUrl}/currentUser`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -26,7 +26,7 @@ export default class ProdAuthFacade implements AuthFacade {
     }
 
     async login(email: string, password: string): Promise<{ token: string; user: User; }> {
-        const response = await fetch(`${this.baseUrl}/auth/login`, {
+        const response = await fetch(`${this.baseUrl}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
@@ -41,7 +41,7 @@ export default class ProdAuthFacade implements AuthFacade {
     }
 
     async signup(email: string, password: string, firstName: string, lastName: string): Promise<{ token: string; user: User; }> {
-        const response = await fetch(`${this.baseUrl}/auth/signup`, {
+        const response = await fetch(`${this.baseUrl}/signup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password, firstName, lastName })
@@ -58,7 +58,7 @@ export default class ProdAuthFacade implements AuthFacade {
     async logout(): Promise<void> {
         const token = await SecureStore.getItemAsync("authToken");
         if (token) {
-            await fetch(`${this.baseUrl}/auth/logout`, {
+            await fetch(`${this.baseUrl}/logout`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,

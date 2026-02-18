@@ -8,12 +8,12 @@ export default class ProdUserFacade implements UserFacade{
     private baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + "/user";
     }
 
     async getUser(userId: number): Promise<User | undefined> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/user/user/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/${userId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -27,7 +27,7 @@ export default class ProdUserFacade implements UserFacade{
 
     async updateUser(userId: number, userData: Partial<{ firstName: string; lastName: string; email: string; password: string; }>): Promise<User> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/user/user/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/${userId}`, {
             method: "PUT",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -69,7 +69,7 @@ export default class ProdUserFacade implements UserFacade{
 
     async getFavouriteSports(userId: number): Promise<Sport[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/user/user/sports/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/sports/${userId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -83,7 +83,7 @@ export default class ProdUserFacade implements UserFacade{
 
     async updateFavouriteSports(userId: number, sportIds: number[]): Promise<Sport[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/user/user/sports/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/sports/${userId}`, {
             method: "PUT",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -98,7 +98,7 @@ export default class ProdUserFacade implements UserFacade{
 
     async getUserGames(userId: number): Promise<GameWithDetails[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/user/user/games/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/games/${userId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",

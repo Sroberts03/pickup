@@ -6,12 +6,12 @@ export default class ProdLocationFacade implements LocationFacade {
     private baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + "/location";
     }
     
     async getLocationById(locationId: number): Promise<Location> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/locations/${locationId}`, {
+        const response = await fetch(`${this.baseUrl}/${locationId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",

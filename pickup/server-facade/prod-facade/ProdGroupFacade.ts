@@ -8,12 +8,12 @@ export default class ProdGroupFacade implements GroupFacade {
     private baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + "/group";
     }
     
     async getUserGroups(userId: number): Promise<Group[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/user/${userId}`, {
+        const response = await fetch(`${this.baseUrl}/user/${userId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -28,7 +28,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async getLastGroupMessage(groupId: number): Promise<GroupMessage | null> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/lastMessage/${groupId}`, {
+        const response = await fetch(`${this.baseUrl}/lastMessage/${groupId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -42,7 +42,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async getGroupMessages(groupId: number): Promise<GroupMessage[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/messages/${groupId}`, {
+        const response = await fetch(`${this.baseUrl}/messages/${groupId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -56,7 +56,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async getGroupMembers(groupId: number): Promise<User[]> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/members/${groupId}`, {
+        const response = await fetch(`${this.baseUrl}/members/${groupId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -70,7 +70,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async sendGroupMessage(groupId: number, content: string): Promise<GroupMessage> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/message/send`, {
+        const response = await fetch(`${this.baseUrl}/message/send`, {
             method: "POST",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -85,7 +85,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async getGroupUnreadStatus(groupId: number): Promise<boolean> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/unread/${groupId}`, {
+        const response = await fetch(`${this.baseUrl}/unread/${groupId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -99,7 +99,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async getLastReadMessageId(groupId: number): Promise<number | null> {
         const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/group/lastReadMessage/${groupId}`, {
+        const response = await fetch(`${this.baseUrl}/lastReadMessage/${groupId}`, {
             method: "GET",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
@@ -113,7 +113,7 @@ export default class ProdGroupFacade implements GroupFacade {
 
     async lastMessageRead(groupId: number, lastReadMessageId?: number | null): Promise<void> {
         const token = await SecureStore.getItemAsync("authToken");
-        await fetch(`${this.baseUrl}/group/update/lastReadMessage`, {
+        await fetch(`${this.baseUrl}/update/lastReadMessage`, {
             method: "PUT",
             headers: {
                 "Authorization": token ? `Bearer ${token}` : "",
