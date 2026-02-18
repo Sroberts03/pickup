@@ -29,13 +29,14 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, cu
 
     useEffect(() => {
         const fetchOptions = async () => {
+            if (!visible) return;
             const fetchedSports = await server.getPossibleSports();
             const fetchedSkillLevels = await server.getPossibleSkillLevels();
             setSports(fetchedSports);
             setSkillLevels(fetchedSkillLevels);
         };
         fetchOptions();
-    }, [server]);
+    }, [server, visible]);
 
     useEffect(() => {
         if (visible) {

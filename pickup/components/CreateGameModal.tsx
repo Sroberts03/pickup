@@ -57,6 +57,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
 
   useEffect(() => {
     const fetchOptions = async () => {
+      if (!user) return;
       try {
         const [availableSports, availableSkillLevels] = await Promise.all([
           server.getPossibleSports(),
@@ -74,7 +75,7 @@ const CreateGameModal: React.FC<CreateGameModalProps> = ({ visible, onClose, onG
     if (visible) {
       fetchOptions();
     }
-  }, [visible, server]);
+  }, [visible, server, user]);
 
   const handleCreateGame = async () => {
     if (!user) {

@@ -5,6 +5,11 @@ import TestUserFacade from './test-facade/TestUserFacade';
 import TestGameFacade from './test-facade/TestGameFacade';
 import TestGroupFacade from './test-facade/TestGroupFacade';
 import TestLocationFacade from './test-facade/TestLocationFacade';
+import ProdAuthFacade from './prod-facade/ProdAuthFacade';
+import ProdUserFacade from './prod-facade/ProdUserFacade';
+import ProdGameFacade from './prod-facade/ProdGameFacade';
+import ProdGroupFacade from './prod-facade/ProdGroupFacade';
+import ProdLocationFacade from './prod-facade/ProdLocationFacade';
 
 declare global {
   var testArguments: { useMocks?: boolean } | undefined;
@@ -36,5 +41,20 @@ export const getServerFacade = () => {
        );
     }
 
-    throw new Error('No server facade implementation for the current mode.');
+    else {
+        const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+        const authFacade = new ProdAuthFacade(baseUrl);
+        const userFacade = new ProdUserFacade(baseUrl);
+        const gameFacade = new ProdGameFacade(baseUrl);
+        const groupFacade = new ProdGroupFacade(baseUrl);
+        const locationFacade = new ProdLocationFacade(baseUrl);
+        
+        return new ServerFacadeRouter(
+            authFacade,
+            userFacade,
+            gameFacade,
+            groupFacade,
+            locationFacade
+        );
+    }
 };

@@ -83,6 +83,7 @@ export default function Index() {
   };
 
   const fetchGames = useCallback(async () => {
+      if (!user) return;
       setIsLoading(true);
       try {
         const locationFilters = userLocation

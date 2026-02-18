@@ -31,6 +31,7 @@ export default function MapTab() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchGames = useCallback(async () => {
+    if (!user) return;
     setIsRefreshing(true);
     try {
       let finalFilters: GameFilter = { ...(sharedFilters || {}) };
