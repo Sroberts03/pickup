@@ -17,6 +17,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (user) {
+        console.log("Setting avatar for user:", user);
         setUserAvatar(`https://api.dicebear.com/7.x/fun-emoji/png?seed=${user.id}`);
     }
   }, [user]);

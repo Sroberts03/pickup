@@ -6,211 +6,129 @@ import GameFacade from "../GameFacade";
 import * as SecureStore from 'expo-secure-store';
 
 export default class ProdGameFacade implements GameFacade {
-    private baseUrl: string;
+    private readonly baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl + "/game";
+        this.baseUrl = `${baseUrl}/game`;
     }
     
-    async getGames(filters?: GameFilter): Promise<Game[]> {
+    private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
         const token = await SecureStore.getItemAsync("authToken");
-        const params = new URLSearchParams();
-        if (filters) {
-            if (filters.sport) params.append('sport', filters.sport.join(','));
-            if (filters.skillLevel) params.append('skillLevel', filters.skillLevel.join(','));
-            if (filters.maxPlayers) params.append('maxPlayers', filters.maxPlayers.toString());
-            if (filters.latitude) params.append('latitude', filters.latitude.toString());
-            if (filters.longitude) params.append('longitude', filters.longitude.toString());
-            if (filters.radiusKm) params.append('radiusKm', filters.radiusKm.toString());
-            if (filters.favoriteOnly) params.append('favoriteOnly', filters.favoriteOnly.toString());
-            if (filters.happeningToday) params.append('happeningToday', filters.happeningToday.toString());
+        
+        const headers: HeadersInit = {
+            "Content-Type": "application/json",
+            "Authorization": token ? `Bearer ${token}` : "",
+            ...options.headers,
+        };
+
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            ...options,
+            headers,
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(errorBody.message || `Request failed: ${response.status}`);
         }
-        const response = await fetch(`${this.baseUrl}/games?${params.toString()}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
+
+        return response.json();
+    }
+
+    private buildQueryParams(filters?: GameFilter): string {
+        if (!filters) return "";
+        const params = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value === undefined || value === null) return;
+
+            if (Array.isArray(value)) {
+                // NestJS @IsArray expects multiple entries for the same key
+                value.forEach(item => params.append(key, item.toString()));
+            } else if (value instanceof Date) {
+                params.append(key, value.toISOString());
+            } else {
+                params.append(key, value.toString());
             }
         });
-        if (!response.ok) throw new Error("Failed to fetch games");
-        const data = await response.json();
-        return data.games.map((g: any) => g as Game);
+
+        const queryString = params.toString();
+        return queryString ? `?${queryString}` : "";
+    }
+
+    async getGames(filters?: GameFilter): Promise<Game[]> {
+        const data = await this.request<{ games: Game[] }>(`/games${this.buildQueryParams(filters)}`);
+        return data.games;
     }
 
     async getGamesWithDetails(filters?: GameFilter): Promise<GameWithDetails[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const params = new URLSearchParams();
-        if (filters) {
-            if (filters.sport) params.append('sport', filters.sport.join(','));
-            if (filters.skillLevel) params.append('skillLevel', filters.skillLevel.join(','));
-            if (filters.maxPlayers) params.append('maxPlayers', filters.maxPlayers.toString());
-            if (filters.latitude) params.append('latitude', filters.latitude.toString());
-            if (filters.longitude) params.append('longitude', filters.longitude.toString());
-            if (filters.radiusKm) params.append('radiusKm', filters.radiusKm.toString());
-            if (filters.favoriteOnly) params.append('favoriteOnly', filters.favoriteOnly.toString());
-            if (filters.happeningToday) params.append('happeningToday', filters.happeningToday.toString());
-        }
-        const response = await fetch(`${this.baseUrl}/games/details?${params.toString()}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch games with details");
-        const data = await response.json();
-        return data.games.map((g: any) => g as GameWithDetails);
+        const data = await this.request<{ games: GameWithDetails[] }>(`/games/details${this.buildQueryParams(filters)}`);
+        return data.games;
     }
 
     async getGamePlayerCount(gameId: number): Promise<number> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/playerCount/${gameId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch player count");
-        const data = await response.json();
+        const data = await this.request<{ playerCount: number }>(`/playerCount/${gameId}`);
         return data.playerCount;
     }
 
     async getGamePlayers(gameId: number): Promise<User[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/players/${gameId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch game players");
-        const data = await response.json();
-        return data.players.map((u: any) => u as User);
+        const data = await this.request<{ players: User[] }>(`/players/${gameId}`);
+        return data.players;
     }
 
     async searchGames(query: string): Promise<GameWithDetails[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/search?query=${encodeURIComponent(query)}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to search games");
-        const data = await response.json();
-        return data.games.map((g: any) => g as GameWithDetails);
+        const data = await this.request<{ games: GameWithDetails[] }>(`/search?query=${encodeURIComponent(query)}`);
+        return data.games;
     }
 
     async joinGame(gameId: number): Promise<void> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/join`, {
+        await this.request<void>(`/join`, {
             method: "POST",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({ gameId })
         });
-        if (!response.ok) throw new Error("Failed to join game");
     }
 
     async leaveGame(gameId: number): Promise<void> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/leave`, {
+        await this.request<void>(`/leave`, {
             method: "PUT",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({ gameId })
         });
-        if (!response.ok) throw new Error("Failed to leave game");
     }
 
-    async createGame(gameData: { name: string; description: string; sportId: number; startTime: Date; endTime: Date; maxPlayers: number; skillLevel: string; rules: string; address: string; placeId: string; lat: Float | null; lng: Float | null; }): Promise<Game> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/create`, {
+    async createGame(gameData: { 
+        name: string; description: string; sportId: number; startTime: Date; 
+        endTime: Date; maxPlayers: number; skillLevel: string; rules: string; 
+        address: string; placeId: string; lat: Float | null; lng: Float | null; 
+    }): Promise<Game> {
+        const data = await this.request<{ game: Game }>(`/create`, {
             method: "POST",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({
-                name: gameData.name,
-                description: gameData.description,
-                sportId: gameData.sportId,
+                ...gameData,
                 startTime: gameData.startTime.toISOString(),
                 endTime: gameData.endTime.toISOString(),
-                maxPlayers: gameData.maxPlayers,
-                skillLevel: gameData.skillLevel,
-                rules: gameData.rules,
-                address: gameData.address,
-                placeId: gameData.placeId,
                 latitude: gameData.lat,
                 longitude: gameData.lng
             })
         });
-        if (!response.ok) throw new Error("Failed to create game");
-        const data = await response.json();
-        return data.game as Game;
+        return data.game;
     }
 
     async getSport(sportId: number): Promise<Sport> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/sport/${sportId}`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch sport");
-        const data = await response.json();
-        return data.sport as Sport;
+        const data = await this.request<{ sport: Sport }>(`/sport/${sportId}`);
+        return data.sport;
     }
 
     async getAllSports(): Promise<Sport[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/sports/all`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch sports");
-        const data = await response.json();
-        return data.sports.map((s: any) => s as Sport);
+        const data = await this.request<{ sports: Sport[] }>(`/sports/all`);
+        return data.sports;
     }
 
     async getPossibleSports(): Promise<string[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/sports/all/names`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch possible sports");
-        const data = await response.json();
+        const data = await this.request<{ sportNames: string[] }>(`/sports/all/names`);
         return data.sportNames;
     }
 
     async getPossibleSkillLevels(): Promise<string[]> {
-        const token = await SecureStore.getItemAsync("authToken");
-        const response = await fetch(`${this.baseUrl}/skillLevels`, {
-            method: "GET",
-            headers: {
-                "Authorization": token ? `Bearer ${token}` : "",
-                "Content-Type": "application/json"
-            }
-        });
-        if (!response.ok) throw new Error("Failed to fetch possible skill levels");
-        const data = await response.json();
+        const data = await this.request<{ skillLevels: string[] }>(`/skillLevels`);
         return data.skillLevels;
     }
 }
