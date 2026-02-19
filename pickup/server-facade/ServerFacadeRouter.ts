@@ -48,6 +48,10 @@ export default class ServerFacadeRouter {
         return this.user.getUser(userId);
     }
 
+    getCreatorInfo(userId: number): Promise<User> {
+        return this.user.getCreatorInfo(userId);
+    }
+
     updateUser(userId: number, userData: Partial<{
         firstName: string;
         lastName: string;

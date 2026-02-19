@@ -34,7 +34,7 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
                 setIsLoading(true);
                 try {
                     const [fetchedCreator, fetchedPlayers, currentUser, location] = await Promise.all([
-                        server.getUser(game.creatorId),
+                        server.getCreatorInfo(game.creatorId),
                         server.getGamePlayers(game.id),
                         server.getCurrentUser(),
                         server.getLocationById(game.locationId)

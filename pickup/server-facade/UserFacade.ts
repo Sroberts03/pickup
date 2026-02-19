@@ -4,6 +4,7 @@ import User from "@/objects/User";
 
 export default interface UserFacade {
     getUser(userId: number): Promise<User | undefined>;
+    getCreatorInfo(userId: number): Promise<{id: number, firstName: string}>;
     updateUser(userId: number, userData: Partial<{
         firstName: string;
         lastName: string;

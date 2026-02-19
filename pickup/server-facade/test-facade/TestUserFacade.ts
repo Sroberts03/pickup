@@ -15,6 +15,19 @@ export default class TestUserFacade implements UserFacade {
         });
     }
 
+    async getCreatorInfo(userId: number): Promise<{id: number, firstName: string}> {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const user = this.dataStore.users.get(userId);
+                if (user) {
+                    resolve({ id: user.id, firstName: user.firstName });
+                } else {
+                    reject(new Error("User not found"));
+                }
+            }, 500);
+        });
+    }
+
     async updateUser(userId: number, userData: Partial<{
         firstName: string;
         lastName: string;

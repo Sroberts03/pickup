@@ -42,6 +42,11 @@ export default class ProdUserFacade implements UserFacade {
         }
     }
 
+    async getCreatorInfo(userId: number): Promise<{id: number, firstName: string}> {
+        const data = await this.request<{ id: number; firstName: string }>(`/user/creatorInfo/${userId}`);
+        return { id: data.id, firstName: data.firstName };
+    }
+
     async updateUser(userId: number, userData: Partial<{ firstName: string; lastName: string; email: string; password: string; }>): Promise<User> {
         const data = await this.request<{ user: User }>(`/user/${userId}`, {
             method: "PUT",
