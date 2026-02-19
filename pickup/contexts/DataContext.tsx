@@ -39,6 +39,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [userStats, setUserStats] = useState<UserStats | null>(null);
     const [loading, setLoading] = useState(false);
     const [sharedFilters, setSharedFilters] = useState<GameFilter | null>(null);
+    const isFirstLoad = userGames.length === 0 && !userStats;
 
     const refreshData = useCallback(async () => {
         if (!user) {
@@ -48,19 +49,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
         }
 
-        // Don't set global loading to true for background refreshes if we already have data
-        // This prevents the UI from flashing a spinner on every small update
-        // We only set loading if we have NO data yet.
-        const isFirstLoad = userGames.length === 0 && !userStats;
         if (isFirstLoad) setLoading(true);
 
         try {
+            console.log("Refreshing data for user:", user);
             const [games, sports, stats] = await Promise.all([
                 server.getUserGames(user.id),
                 server.getFavouriteSports(user.id),
                 server.getUserStats(user.id)
             ]);
-            
             setUserGames(games);
             setFavoriteSports(sports);
             setUserStats(stats);
@@ -69,7 +66,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } finally {
             if (isFirstLoad) setLoading(false);
         }
-    }, [user, userGames.length, userStats, server]);
+    }, [user, server, isFirstLoad]);
 
     // Initial load when user changes
     useEffect(() => {

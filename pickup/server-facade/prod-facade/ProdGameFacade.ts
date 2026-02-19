@@ -27,11 +27,19 @@ export default class ProdGameFacade implements GameFacade {
         });
 
         if (!response.ok) {
-            const errorBody = await response.json().catch(() => ({}));
+            // Try to parse error body, but ignore if empty
+            let errorBody = {};
+            try {
+                const text = await response.text();
+                errorBody = text ? JSON.parse(text) : {};
+            } catch {}
             throw new Error(errorBody.message || `Request failed: ${response.status}`);
         }
 
-        return response.json();
+        // Only parse JSON if there is content
+        const text = await response.text();
+        if (!text) return undefined as T;
+        return JSON.parse(text);
     }
 
     private buildQueryParams(filters?: GameFilter): string {

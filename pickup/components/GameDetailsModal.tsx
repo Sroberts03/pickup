@@ -63,22 +63,20 @@ const GameDetailsModal: React.FC<GameDetailsModalProps> = ({ visible, game, onCl
         setIsActionLoading(true);
         try {
             if (hasJoined) {
-                await server.leaveGame(game.id);
+                await server.leaveGame(game.id as number);
                 setHasJoined(false);
                 if (user) {
-                     setPlayers(prev => prev.filter(p => p.id !== user.id));
+                    setPlayers(prev => prev.filter(p => p.id !== user.id));
                 }
-                
-                // Let's refetch to be safe and simple
                 const fetchedPlayers = await server.getGamePlayers(game.id);
                 setPlayers(fetchedPlayers);
-                refreshData(); 
+                await refreshData();
             } else {
-                await server.joinGame(game.id);
+                await server.joinGame(game.id as number);
                 setHasJoined(true);
                 const fetchedPlayers = await server.getGamePlayers(game.id);
                 setPlayers(fetchedPlayers);
-                refreshData();
+                await refreshData();
             }
         } catch (error) {
             Alert.alert("Error", "Failed to update game participation.");

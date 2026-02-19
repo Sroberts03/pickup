@@ -244,11 +244,6 @@ export default function MyGamesScreen() {
         game={selectedGame}
         onClose={() => {
           setSelectedGame(null);
-          // Data is auto-refreshed by GameDetailsModal calling refreshData() internally or via context?
-          // We need GameDetailsModal to call refreshData()!
-          // Or we can call it here if we insist, but GameDetailsModal is better.
-          // Let's call refreshData here too just in case the modal didn't.
-          refreshData();
         }}
       />
     </SafeAreaView>
