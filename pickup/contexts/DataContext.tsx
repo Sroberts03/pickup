@@ -52,7 +52,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (isFirstLoad) setLoading(true);
 
         try {
-            console.log("Refreshing data for user:", user);
             const [games, sports, stats] = await Promise.all([
                 server.getUserGames(user.id),
                 server.getFavouriteSports(user.id),

@@ -161,6 +161,15 @@ export default function GroupChatScreen() {
         }
     };
 
+    const handleAvatarPress = (senderId: number) => {
+        const sender = members.find(m => m.id === senderId) || (user?.id === senderId ? user : null);
+        if (sender) {
+            setSelectedUser(sender);
+        } else {
+            console.warn("User not found for avatar press:", senderId);
+        }
+    }
+
     const renderMessage = ({ item, index }: { item: GroupMessage, index: number }) => {
         const isCurrentUser = item.userId === user?.id;
         const sender = messageUsers.get(item.userId);
@@ -222,7 +231,7 @@ export default function GroupChatScreen() {
                     {!isCurrentUser && (
                         <View style={styles.avatarContainer}>
                             {showAvatar ? (
-                                <TouchableOpacity onPress={() => sender && setSelectedUser(sender)}>
+                                <TouchableOpacity onPress={() => handleAvatarPress(sender?.id ?? item.userId)}>
                                     <Image source={{ uri: avatarUrl! }} style={styles.avatar} />
                                 </TouchableOpacity>
                             ) : <View style={styles.avatarSpacer} />}
@@ -270,14 +279,11 @@ export default function GroupChatScreen() {
                         <TouchableOpacity
                             onPress={() => setShowMembers(true)}
                             style={{
-                                width: 44,
-                                height: 44,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                alignSelf: 'center',
+                                width: 32,
+                                height: 32,
                             }}
                         >
-                            <Ionicons name="information-circle-outline" size={30} color={colors.primary} />
+                            <Ionicons name="information-circle-outline" size={32} color={colors.primary} />
                         </TouchableOpacity>
                     ),
                 }}
