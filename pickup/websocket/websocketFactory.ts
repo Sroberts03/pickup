@@ -1,21 +1,21 @@
+import ServerFacadeRouter from '@/server-facade/ServerFacadeRouter';
 import TestWebsocket from './testWebsocket';
-import ServerFacade from '../server-facade/serverFacade';
 import { createSocketClient } from './websocket';
 
 declare global {
   var testArguments: { useMocks?: boolean } | undefined;
 }
 
-export const getWebSocketFacade = (serverFacade?: ServerFacade, token?: string) => {
+export const getWebSocketFacade = (serverFacadeRouter: ServerFacadeRouter, token?: string) => {
     const isMockEnv = process.env.EXPO_PUBLIC_API_MODE === 'mock';
   
     const isTestingArgs = global.testArguments?.useMocks === true;
 
     if (isMockEnv || isTestingArgs) {
-        if (!serverFacade) {
-            throw new Error('ServerFacade instance is required for TestWebSocket');
+        if (!serverFacadeRouter) {
+            throw new Error('ServerFacadeRouter instance is required for TestWebSocket');
         }
-       return new TestWebsocket(serverFacade);
+       return new TestWebsocket(serverFacadeRouter);
     }
 
     // Production mode - use real Socket.io client

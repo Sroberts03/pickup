@@ -28,6 +28,11 @@ export default function GroupsScreen() {
       setLoading(true);
       const userGroups = await server.getUserGroups(user.id);
       
+      if (userGroups.length === 0) {
+        setGroupsData([]);
+        return;
+      }
+      
       const groupsWithMessages = await Promise.all(
         userGroups.map(async (group) => {
           const [lastMessage, isUnread] = await Promise.all([
