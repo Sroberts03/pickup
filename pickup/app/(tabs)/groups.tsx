@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
-    paddingVertical: 1,
+    marginBottom: -20,
   },
   avatar: {
     width: 60,

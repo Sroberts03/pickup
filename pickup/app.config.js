@@ -4,7 +4,7 @@ export default {
     slug: "pickup",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/pickup.png",
     scheme: "pickup",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -26,9 +26,7 @@ export default {
       ],
       adaptiveIcon: {
         backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png"
+        foregroundImage: "./assets/images/pickup.png",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
@@ -42,14 +40,14 @@ export default {
     },
     web: {
       output: "static",
-      favicon: "./assets/images/favicon.png"
+      favicon: "./assets/images/pickup.png"
     },
     plugins: [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
+          image: "./assets/images/pickup.png",
           imageWidth: 200,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
