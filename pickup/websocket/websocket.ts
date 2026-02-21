@@ -69,11 +69,16 @@ class SocketIOClient implements WebSocketFacade {
     }
 
     connect(token: string): void {
-        if (this.socket?.connected) {
-            console.log('Socket already connected');
+        if (this.socket) {
+            console.log('Reusing existing socket, updating auth token');
+            this.socket.auth = { token };
+            if (!this.socket.connected) {
+                this.socket.connect();
+            }
             return;
         }
 
+        console.log('Creating new socket connection to:', this.serverUrl);
         this.socket = io(this.serverUrl, {
             auth: {
                 token: token,
@@ -82,6 +87,8 @@ class SocketIOClient implements WebSocketFacade {
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionAttempts: 5,
+            forceNew: true,
+            multiplex: false,
         });
 
         this.setupSocketListeners();
@@ -89,8 +96,9 @@ class SocketIOClient implements WebSocketFacade {
 
     disconnect(): void {
         if (this.socket) {
+            console.log('Explicitly disconnecting socket');
             this.socket.disconnect();
-            this.socket = null;
+            // We keep the socket instance so we can reuse it (with new auth) if connect() is called again
         }
     }
 
@@ -137,15 +145,14 @@ class SocketIOClient implements WebSocketFacade {
     setEventListeners(listeners: SocketEventListeners): void {
         this.listeners = listeners;
         
-        // If socket is already connected, re-setup listeners
-        if (this.socket?.connected) {
+        // If socket exists, re-setup listeners to ensure they are bound to the current listeners object
+        if (this.socket) {
             this.setupSocketListeners();
         }
     }
 
     removeEventListeners(): void {
         this.listeners = {};
-        
         if (this.socket) {
             this.socket.off('connect');
             this.socket.off('disconnect');
@@ -160,14 +167,17 @@ class SocketIOClient implements WebSocketFacade {
     private setupSocketListeners(): void {
         if (!this.socket) return;
 
+        // Clear existing listeners to prevent duplicates if this is called multiple times
+        this.socket.off();
+
         // Connection events
         this.socket.on('connect', () => {
-            console.log('Socket connected');
+            console.log('Socket connected (ID:', this.socket?.id, ')');
             this.listeners.onConnected?.();
         });
 
-        this.socket.on('disconnect', () => {
-            console.log('Socket disconnected');
+        this.socket.on('disconnect', (reason) => {
+            console.log('Socket disconnected, reason:', reason);
             this.listeners.onDisconnected?.();
         });
 

@@ -102,11 +102,21 @@ export default function GroupChatScreen() {
     useEffect(() => {
         if (!websocket) return;
 
+        // Function to join group, can be called on mount and on reconnection
+        const joinGroup = () => {
+            console.log('[GroupChatScreen] Joining group', groupId);
+            websocket.joinGroup(groupId);
+        };
+
         // Join the group when component mounts
-        websocket.joinGroup(groupId);
+        joinGroup();
 
         // Set up event listeners
         websocket.setEventListeners({
+            onConnected: () => {
+                console.log('[GroupChatScreen] Socket reconnected, joining group');
+                joinGroup();
+            },
             onNewMessage: (message) => {
                 if (message.groupId === groupId) {
                     const gmsg = new GroupMessage(
