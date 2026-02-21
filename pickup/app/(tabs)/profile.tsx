@@ -3,7 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@react-navigation/native";
 import { useAuth } from "@/contexts/AuthContext";
 import User from "@/objects/User";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import SettingsModal from "@/components/SettingsModal";
 import { useData } from "@/contexts/DataContext";

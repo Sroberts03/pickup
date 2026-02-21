@@ -3,7 +3,8 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme, useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons';
-import React, { useCallback, useEffect, useState } from "react";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
@@ -253,7 +254,7 @@ export default function Index() {
       <SearchModal
         visible={isSearchVisible}
         onClose={() => setIsSearchVisible(false)}
-        onGameSelect={(game) => {
+        onGameSelect={(game: GameWithDetails | null) => {
           setIsSearchVisible(false);
           setSelectedGame(game);
         }}

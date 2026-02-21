@@ -48,7 +48,7 @@ export default class ServerFacadeRouter {
         return this.user.getUser(userId);
     }
 
-    getCreatorInfo(userId: number): Promise<User> {
+    getCreatorInfo(userId: number): Promise<{ id: number; firstName: string; } | undefined> {
         return this.user.getCreatorInfo(userId);
     }
 

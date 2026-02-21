@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View, Text, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from "react-native-maps";
 import { useTheme, useFocusEffect } from "@react-navigation/native";
@@ -186,7 +187,7 @@ export default function MapTab() {
       <FilterModal
         visible={isFilterVisible}
         onClose={() => setIsFilterVisible(false)}
-        onApply={(newFilters) => {
+        onApply={(newFilters: GameFilter | null) => {
           setSharedFilters(newFilters);
           setIsFilterVisible(false);
         }}

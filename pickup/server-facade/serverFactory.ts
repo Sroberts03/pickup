@@ -10,6 +10,7 @@ import ProdUserFacade from './prod-facade/ProdUserFacade';
 import ProdGameFacade from './prod-facade/ProdGameFacade';
 import ProdGroupFacade from './prod-facade/ProdGroupFacade';
 import ProdLocationFacade from './prod-facade/ProdLocationFacade';
+import { Platform } from 'react-native';
 
 declare global {
   var testArguments: { useMocks?: boolean } | undefined;
@@ -42,7 +43,12 @@ export const getServerFacade = () => {
     }
 
     else {
-        const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+        let baseUrl: string;
+        if (Platform.OS === 'android') {
+            baseUrl = process.env.EXPO_PUBLIC_API_ANDROID_BASE_URL || 'http://10.0.2.2:3000/api';
+        } else {
+            baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+        }   
         const authFacade = new ProdAuthFacade(baseUrl);
         const userFacade = new ProdUserFacade(baseUrl);
         const gameFacade = new ProdGameFacade(baseUrl);

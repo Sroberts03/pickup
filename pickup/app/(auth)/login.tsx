@@ -1,6 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

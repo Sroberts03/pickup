@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme, useFocusEffect } from "@react-navigation/native";
 import { useColorScheme, View, StyleSheet } from "react-native";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useServer } from "@/contexts/ServerContext";
 import { useAuth } from "@/contexts/AuthContext";
 

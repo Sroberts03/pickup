@@ -2,7 +2,8 @@ import { StyleSheet, ScrollView, View, TouchableOpacity, Text, Image, ImageSourc
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useTheme, useNavigation } from "@react-navigation/native";
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import * as React from "react";
 import { GameWithDetails } from "@/objects/Game";
 import GameDetailsModal from "@/components/GameDetailsModal";
 import { useAuth } from "@/contexts/AuthContext";
